@@ -1,149 +1,162 @@
-/*
- * NoiseFloor — Live News Feed module
- * ----------------------------------
- * Pulls REAL articles straight from the GDELT DOC 2.0 API
- * (https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/) and renders two
- * sections requested for the project:
- *
- *   A. "World -> Nepal": what Indian & Chinese media are publishing about
- *      Nepal right now — INCLUDING native-language coverage
- *      (Hindi via sourcelang:hindi, Simplified Chinese via
- *      sourcelang:simplifiedchinese).
- *   B. "Nepal -> World": what Nepali media (sourcecountry:np) are publishing
- *      about India and China.
- *
- * Auto-refreshes every 15 minutes (REFRESH_MS). GDELT's index lags real
- * time by ~15 minutes anyway, so this cadence matches the data pipeline.
- *
- * NOTE ON DATA SOURCE: these are live article records from GDELT's global
- * news index — nothing is invented client-side. If the API is unreachable,
- * the UI shows an explicit error state instead of fake rows.
- */
 "use strict";
+/* ============================================================================
+   NoiseFloor · NFFeed — Live GDELT DOC 2.0 news feed
+   • Streams by publishing country + language (EN/HI/ZH)
+   • Per-headline tone chip (NFSummarize lexicon score)
+   • 3-point automated briefing per stream (on-device, extractive)
+   • Appends BELOW the view intro (mount-position bug fixed)
+   • Staggered fetches + explicit HTTP 429 messaging
+   ========================================================================== */
+(function () {
 
-window.NFFeed = (() => {
-  const REFRESH_MS = 15 * 60 * 1000; // 15 minutes
-  const API = "https://api.gdeltproject.org/api/v2/doc/doc";
+  const REFRESH_MS = 15 * 60 * 1000;
+  const MAX_RECORDS = 20;
 
-  const FEEDS = {
-    world_to_nepal: [
-      { id: "in-en", label: "India · English", color: "#FF3333",
-        query: "(nepal OR kathmandu) sourcecountry:in sourcelang:english" },
-      { id: "in-hi", label: "India · हिन्दी (Hindi)", color: "#FF7755",
-        query: "(nepal OR kathmandu) sourcecountry:in sourcelang:hindi" },
-      { id: "cn-en", label: "China · English", color: "#00FFFF",
-        query: "(nepal OR kathmandu) sourcecountry:cn sourcelang:english" },
-      { id: "cn-zh", label: "China · 中文 (Chinese)", color: "#00BBBB",
-        query: "(nepal OR kathmandu) sourcecountry:cn sourcelang:simplifiedchinese" }
-    ],
-    nepal_to_world: [
-      { id: "np-india", label: "Nepal → India", color: "#FFBF00",
-        query: "(india OR delhi) sourcecountry:np" },
-      { id: "np-china", label: "Nepal → China", color: "#FFDF80",
-        query: "(china OR beijing) sourcecountry:np" }
-    ]
-  };
+  const STREAMS = [
+    { id: 'in-en', flag: '🇮🇳', label: 'India · English',
+      query: '(nepal OR kathmandu) sourcecountry:in sourcelang:english',
+      note: 'Indian outlets in English' },
+    { id: 'in-hi', flag: '🇮🇳', label: 'India · Hindi',
+      query: '(nepal OR kathmandu) sourcelang:hindi',
+      note: 'Hindi-language native coverage' },
+    { id: 'cn-en', flag: '🇨🇳', label: 'China · English',
+      query: '(nepal OR kathmandu) sourcecountry:cn sourcelang:english',
+      note: 'Chinese state/global outlets in English' },
+    { id: 'cn-zh', flag: '🇨🇳', label: 'China · 简体中文',
+      query: '(nepal OR 尼泊尔) sourcelang:simplifiedchinese',
+      note: 'Simplified Chinese native coverage' },
+    { id: 'gl-en', flag: '🌐', label: 'Global · English',
+      query: '(nepal OR kathmandu) sourcelang:english',
+      note: 'Worldwide English baseline' }
+  ];
 
-  function buildUrl(query, maxrecords) {
-    return `${API}?query=${encodeURIComponent(query)}&mode=artlist` +
-           `&maxrecords=${maxrecords}&format=json&sort=datedesc&timespan=3d`;
+  const esc = window.NFEsc || (s => String(s ?? '')
+    .replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  let host = null;
+  let lastFetch = 0;
+  let loading = false;
+
+  function toneChip(score) {
+    if (score > 1) return '<span class="chip tone-pos feed-tone">POS</span>';
+    if (score < -1) return '<span class="chip tone-neg feed-tone">NEG</span>';
+    return '<span class="chip tone-neu feed-tone">NEU</span>';
   }
 
-  async function fetchFeed(feed) {
-    const res = await fetch(buildUrl(feed.query, 25));
-    if (!res.ok) throw new Error("GDELT API HTTP " + res.status);
-    const json = await res.json();
-    return json.articles || [];
+  function articleHtml(a, S) {
+    const score = window.NFSummarize ? NFSummarize.headlineTone(a.title) : 0;
+    const date = (a.seendate || '').replace(/^(\d{4})(\d{2})(\d{2}).*$/, '$1-$2-$3');
+    return `<a class="feed-item" href="${esc(a.url)}" target="_blank" rel="noopener">
+      <div class="feed-item-title">${esc(a.title)}</div>
+      <div class="feed-item-meta">
+        ${toneChip(score)}
+        <span class="feed-domain">${esc(a.domain)}</span>
+        <span class="feed-tag">${esc(S.label)}</span>
+        <span class="feed-date">${esc(date)}</span>
+      </div>
+    </a>`;
   }
 
-  function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g,
-      c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  }
 
-  function renderArticles(el, articles, err) {
-    if (err) {
-      el.innerHTML = `<div class="feed-error">⚠ Feed unavailable (${escapeHtml(err.message)}).` +
-        ` GDELT may be rate-limiting — will retry on next cycle.</div>`;
-      return;
-    }
-    if (!articles.length) {
-      el.innerHTML = `<div class="feed-empty">No indexed articles in this stream in the last 3 days.</div>`;
-      return;
-    }
-    el.innerHTML = articles.map(a => `
-      <a class="feed-item" href="${escapeHtml(a.url)}" target="_blank" rel="noopener">
-        <div class="feed-item-title">${escapeHtml(a.title)}</div>
-        <div class="feed-item-meta">
-          <span class="feed-domain">${escapeHtml(a.domain)}</span>
-          ${a.sourcecountry ? `<span class="feed-tag">${escapeHtml(a.sourcecountry)}</span>` : ""}
-          ${a.language ? `<span class="feed-tag">${escapeHtml(a.language)}</span>` : ""}
-          <span class="feed-date">${escapeHtml((a.seendate || "").replace("T", " ").replace("Z", " UTC"))}</span>
+  function streamShell(S) {
+    const card = document.createElement('div');
+    card.className = 'card mb-4';
+    card.id = `feed-${S.id}`;
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="flex items-center gap-3">
+          <span style="font-size:18px;">${S.flag}</span>
+          <div>
+            <h3 class="text-sm font-semibold mb-1">${esc(S.label)}</h3>
+            <span class="text-xs text-dim">${esc(S.note)}</span>
+          </div>
         </div>
-      </a>`).join("");
+        <span class="label-caps" data-role="status">LOADING…</span>
+      </div>
+      <div class="briefing-box" data-role="brief">
+        <span class="label-caps text-cyan">⚡ AI BRIEFING — 3 POINTS</span>
+        <ol data-role="brief-list"><li>Summarising retrieved headlines…</li></ol>
+      </div>
+      <div class="feed-list" data-role="list">
+        <div class="feed-empty">Fetching…</div>
+      </div>`;
+    return card;
   }
 
-  /* ---------- mounting & auto-refresh (15 min) ---------- */
+  async function fetchStream(S, card) {
+    const status = card.querySelector('[data-role="status"]');
+    const list = card.querySelector('[data-role="list"]');
+    const briefList = card.querySelector('[data-role="brief-list"]');
+    const url = 'https://api.gdeltproject.org/api/v2/doc/doc?query=' +
+      encodeURIComponent(S.query) +
+      `&mode=artlist&maxrecords=${MAX_RECORDS}&format=json&sort=datedesc`;
 
-  const sleep = ms => new Promise(res => setTimeout(res, ms));
+    try {
+      const res = await fetch(url);
+      if (res.status === 429) throw Object.assign(new Error('rate-limited'), { rateLimited: true });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const arts = (await res.json()).articles || [];
 
-  async function refreshAll() {
-    let first = true;
-    for (const groupKey of Object.keys(FEEDS)) {
-      for (const feed of FEEDS[groupKey]) {
-        const el = document.getElementById("feed-" + feed.id);
-        if (!el) continue;
-        // GDELT rate-limits bursts (HTTP 429): space requests ~3s apart
-        if (!first) await sleep(3000);
-        first = false;
-        try { renderArticles(el, await fetchFeed(feed), null); }
-        catch (e) { renderArticles(el, [], e); }
-      }
+      status.textContent = `${arts.length} ARTICLES`;
+      list.innerHTML = arts.length
+        ? arts.map(a => articleHtml(a, S)).join('')
+        : '<div class="feed-empty">No articles in the recent index for this stream right now.</div>';
+
+      const bullets = window.NFSummarize ? NFSummarize.brief(arts) : [];
+      briefList.innerHTML = bullets.length
+        ? bullets.map(b => `<li>${esc(b)}</li>`).join('')
+        : '<li>Not enough headlines to summarise.</li>';
+    } catch (err) {
+      const msg = err.rateLimited
+        ? 'GDELT is rate-limiting us (HTTP 429). The feed auto-retries on next refresh — historical analysis is unaffected.'
+        : `Could not reach GDELT (${esc(err.message)}). Check your connection; everything else on this page works offline from cached data.`;
+      status.innerHTML = '<span class="text-warning">OFFLINE</span>';
+      list.innerHTML = `<div class="feed-error">⚠ ${msg}</div>`;
+      briefList.innerHTML = '<li>Unavailable while the stream is offline.</li>';
     }
-    const statusEl = document.getElementById("feed-status");
-    if (statusEl) statusEl.textContent =
-      "Last refreshed: " + new Date().toLocaleTimeString() + " · auto-refreshes every 15 min";
   }
 
-  function mount() {
-    const host = document.getElementById("view-livefeed");
-    if (!host || host.dataset.feedMounted) return;
-    host.dataset.feedMounted = "1";
-
-    const groupsHtml = Object.keys(FEEDS).map(gk => `
-      <h3 class="text-sm font-semibold mt-6 mb-2">${gk === "world_to_nepal"
-        ? "A · India &amp; China media covering Nepal (incl. native language)"
-        : "B · Nepali media covering India &amp; China"}</h3>
-      <div class="grid-2" id="feed-${gk}">
-        ${FEEDS[gk].map(f => `
-          <div class="card">
-            <div class="card-header" style="justify-content: flex-start; gap:8px;">
-              <span style="width:10px;height:10px;border-radius:50%;background:${f.color};display:inline-block;"></span>
-              <span class="label-caps">${f.label}</span>
-            </div>
-            <div class="card-body feed-list" id="feed-${f.id}">
-              <div class="feed-empty">Loading…</div>
-            </div>
-          </div>`).join("")}
-      </div>`).join("");
-
-    const controls = document.createElement("div");
-    controls.className = "flex items-center gap-4 mb-4";
-    controls.innerHTML = `
-      <span class="material-symbols-outlined text-cyan">rss_feed</span>
-      <span class="text-sm">Live GDELT DOC-index headlines</span>
-      <span class="chip text-success">AUTO-REFRESH · 15 MIN</span>
-      <button id="feed-refresh-btn" class="btn-primary" style="padding:4px 12px;font-size:11px;">REFRESH NOW</button>
-      <span id="feed-status" class="text-xs text-muted"></span>`;
-    host.prepend(controls);
-    host.insertAdjacentHTML("beforeend", groupsHtml);
-
-    document.getElementById("feed-refresh-btn")
-      .addEventListener("click", () => refreshAll());
-
-    refreshAll();
-    setInterval(refreshAll, REFRESH_MS);
+  async function loadAll(force) {
+    if (loading) return;
+    if (!force && Date.now() - lastFetch < REFRESH_MS) return;
+    loading = true;
+    // Stagger requests to stay friendly to the DOC API
+    for (const [i, S] of STREAMS.entries()) {
+      const card = document.getElementById(`feed-${S.id}`);
+      if (card) await fetchStream(S, card);
+      if (i < STREAMS.length - 1) await sleep(1200);
+    }
+    lastFetch = Date.now();
+    loading = false;
   }
 
-  return { mount, REFRESH_MS };
+  function mount(force) {
+    const view = document.getElementById('view-livefeed');
+    if (!view) return;
+
+    if (!host || !view.contains(host)) {
+      // Append AFTER the intro paragraphs (never before them again)
+      host = document.createElement('div');
+      host.id = 'nf-feed-host';
+      view.appendChild(host);
+      for (const S of STREAMS) host.appendChild(streamShell(S));
+
+      // Manual refresh button above the streams
+      const bar = document.createElement('div');
+      bar.className = 'flex items-center gap-4 mb-4 flex-wrap';
+      bar.innerHTML = `
+        <button class="btn-primary" type="button" data-nf-feed-refresh>
+          <span class="material-symbols-outlined" style="font-size:16px;">refresh</span> REFRESH NOW
+        </button>
+        <span class="text-xs text-muted">Streams refresh automatically every 15 minutes. Tone chips &amp; briefings are generated on-device from retrieved titles.</span>`;
+      view.insertBefore(bar, host);
+      bar.querySelector('[data-nf-feed-refresh]').addEventListener('click', () => loadAll(true));
+    }
+
+    loadAll(force);
+    if (!mount._timer) mount._timer = setInterval(() => loadAll(true), REFRESH_MS);
+  }
+
+  window.NFFeed = { mount };
 })();
