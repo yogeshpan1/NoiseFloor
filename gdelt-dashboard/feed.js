@@ -85,11 +85,17 @@ window.NFFeed = (() => {
 
   /* ---------- mounting & auto-refresh (15 min) ---------- */
 
+  const sleep = ms => new Promise(res => setTimeout(res, ms));
+
   async function refreshAll() {
+    let first = true;
     for (const groupKey of Object.keys(FEEDS)) {
       for (const feed of FEEDS[groupKey]) {
         const el = document.getElementById("feed-" + feed.id);
         if (!el) continue;
+        // GDELT rate-limits bursts (HTTP 429): space requests ~3s apart
+        if (!first) await sleep(3000);
+        first = false;
         try { renderArticles(el, await fetchFeed(feed), null); }
         catch (e) { renderArticles(el, [], e); }
       }
