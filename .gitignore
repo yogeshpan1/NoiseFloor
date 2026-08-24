@@ -13,3 +13,5 @@ temp.zip
 # OS
 Thumbs.db
 .DS_Store
+_ext.log 
+gdelt-dashboard/data/extended/_cellcache.json

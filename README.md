@@ -68,9 +68,42 @@ NoiseFloor/
 │   ├── date_index.js           # NEW: JS twin of the DSA DateIndex (load-bearing!)
 │   ├── feed.js                 # NEW: GDELT DOC API live feeds, 15-min auto-refresh
 │   ├── style.css               # feed/heatmap/print styles
-│   └── data_bundle.js          # generated — run backend/build_data.py after any CSV change
+│   ├── data_bundle.js          # generated — run backend/build_data.py after any CSV change
+│   ├── globe.js                # NEW: dependency-free 3D coverage globe (Dashboard)
+│   ├── summarize.js            # NEW: headline tone lexicon + extractive 3-point briefings
+│   ├── geo_views.js            # NEW: Neighbour Watch / Cross-Reactions / Nepal Dividend views
+│   ├── insights.js             # NEW: Insight Engine — TF-IDF inverted-index Q&A over verified findings
+│   └── data/extended/          # generated cache from backend/build_extended.py
 └── *.csv                       # original pipeline exports (untouched)
 ```
+
+## 🎨 2026 redesign — Figma console UI + Regional Lens
+
+The dashboard was rebuilt around a dark intelligence-console design (near-black surfaces,
+rounded panels, mono numerals; India red `#F0544C` vs China cyan `#2CC8E8`). All previous
+views and every locked statistic are preserved.
+
+New since the original build:
+
+- **Figma-replica shell** — grouped sidebar navigation, top bar with live view title,
+  `DATASET GDELT / LAST UPDATED` sidebar footer, KPI cards with big mono values.
+- **3D Coverage Globe** (Dashboard) — hand-rolled orthographic canvas projection: one dot per
+  source country sized by Nepal-coverage volume, pulsing Nepal marker, great-circle arcs from
+  India and China. Drag to rotate, auto-spins when idle. No WebGL/library dependencies.
+- **Regional Lens views** (`backend/build_extended.py` → `geo_views.js`):
+  - *Neighbour Watch* — India vs China tone toward **every** neighbour (Pakistan, Bangladesh,
+    Sri Lanka, Bhutan, Maldives, Myanmar, Afghanistan, Nepal) with attention-share radar.
+  - *Cross-Reactions* — how Indian media frames China's activities in Nepal (and vice versa):
+    rival-mention coverage tone vs each outlet's own baseline, i.e. a threat-framing detector.
+  - *Nepal Dividend* — aid/investment attention & framing timelines plus a curated ledger of
+    documented assistance with sources.
+- **Live Feed upgrade** — every headline carries an on-device tone chip, and each stream gets a
+  3-point **AI briefing** generated locally by `summarize.js` (lexicon sentiment + term-frequency
+  extraction over the retrieved titles). No external AI service; nothing invented.
+- **Insight Engine** — ask questions in plain English; a miniature RAG-style pipeline (inverted
+  index → TF-IDF retrieval → cited synthesis) answers strictly from NoiseFloor's verified event
+  log, findings and methodology. DSA showcase #2 alongside the DateIndex.
+
 
 ## 🆕 Feature map (what was added where)
 
@@ -151,6 +184,10 @@ python -m venv .venv
 
 :: regenerate the frontend data bundle after any CSV change
 .venv\Scripts\python backend\build_data.py
+
+:: (optional) fetch the Regional Lens datasets — resumable, cached, 429-safe
+.venv\Scripts\python backend\build_extended.py
+.venv\Scripts\python backend\build_data.py   :: merge extended data into the bundle
 
 :: open the dashboard (no server needed — pure static files)
 start gdelt-dashboard\index.html
