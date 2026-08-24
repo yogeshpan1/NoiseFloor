@@ -1,0 +1,15 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Scratch / temp
+_scratch_*
+*.tmp
+temp.zip
+
+# OS
+Thumbs.db
+.DS_Store
