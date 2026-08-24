@@ -224,6 +224,30 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* ════════════ NEW: Live Feed (feed.js) ════════════ */
+.feed-list { display: flex; flex-direction: column; gap: 6px; max-height: 420px; overflow-y: auto; }
+.feed-item { display: block; padding: 8px 10px; border: 1px solid var(--border-dark); background: var(--bg-deep); text-decoration: none; transition: border-color .15s; }
+.feed-item:hover { border-color: var(--accent-cyan); }
+.feed-item-title { font-size: 11.5px; color: #dee3e8; line-height: 1.45; margin-bottom: 4px; }
+.feed-item-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.feed-domain { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #00cfff; }
+.feed-tag { font-size: 9.5px; padding: 1px 6px; border: 1px solid var(--border-dark); color: #87929a; border-radius: 3px; }
+.feed-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #5b6870; margin-left: auto; }
+.feed-empty, .feed-error { font-size: 11px; color: #5b6870; padding: 12px; }
+.feed-error { color: #FF7755; }
+
+/* ════════════ NEW: Heatmap cells (app.js) ════════════ */
+.hm-cell { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-align: right; padding: 4px 8px; }
+
+/* ════════════ NEW: Print / PDF snapshot (stretch d) ════════════ */
+@media print {
+  .sidebar, button, .nav-link { display: none !important; }
+  .main-content { margin-left: 0 !important; }
+  body { background: #fff; }
+  .view-page { display: block !important; page-break-after: always; }
+}
+
+
 /* ─── UI Components ─── */
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }

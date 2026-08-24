@@ -32,6 +32,15 @@
     <a class="nav-link" data-view="genz">
       <span class="material-symbols-outlined">diversity_3</span> Gen-Z 2025
     </a>
+    <a class="nav-link" data-view="dateexplorer">
+      <span class="material-symbols-outlined">calendar_search</span> Date Explorer
+    </a>
+    <a class="nav-link" data-view="trends">
+      <span class="material-symbols-outlined">insights</span> Trends &amp; Anomalies
+    </a>
+    <a class="nav-link" data-view="livefeed">
+      <span class="material-symbols-outlined">rss_feed</span> Live Feed
+    </a>
     <a class="nav-link" data-view="keyfindings">
       <span class="material-symbols-outlined">emoji_events</span> Key Findings
     </a>
@@ -99,6 +108,7 @@
         <h3 class="text-sm font-bold text-india">SEPT 9 SPIKE DETECTED</h3>
       </div>
       <p class="text-sm text-muted"><strong>2,370 events in a single day</strong> — an unprecedented 30.99x jump from the 30-day baseline of 76.47 events/day (Source: daily_sentiment).</p>
+      <p class="text-xs text-muted mt-2"><strong>What actually happened on Sept 9:</strong> Gen-Z protests peaked and turned violent — parliament was set ablaze, a curfew was imposed, and PM K.P. Sharma Oli <strong>resigned</strong>. The interim government under Sushila Karki was sworn in later, on <strong class="text-success">September 12</strong>. These are two distinct events on two distinct dates (see Data Sources → Event Log).</p>
     </div>
   </div>
 
@@ -1066,9 +1076,177 @@
   </div>
 </div>
 
+<!-- ╔══════════════════════════════════════════════╗
+     ║   VIEW: DATE EXPLORER (Task 1 + DSA Task 4)  ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="view-page" id="view-dateexplorer">
+  <h2 class="text-xl font-semibold mb-1">Date Explorer</h2>
+  <p class="text-sm text-muted mb-6">Pick a single date or a range. Lookups run through a hand-built
+    <strong class="text-cyan">DateIndex</strong> — a sorted date array + inverted index queried by binary search,
+    O(log n + k) per query instead of the naive O(n) scan (see backend/date_index.py).</p>
+
+  <!-- Controls -->
+  <div class="card mb-4">
+    <div class="card-body flex flex-wrap items-end gap-4">
+      <div>
+        <label class="label-caps block mb-2">Mode</label>
+        <select id="dx-mode" class="input-field" style="width:auto;">
+          <option value="range">Date Range</option>
+          <option value="single">Single Date</option>
+        </select>
+      </div>
+      <div id="dx-start-wrap">
+        <label class="label-caps block mb-2" id="dx-start-label">Start</label>
+        <input type="date" id="dx-start" class="input-field"/>
+      </div>
+      <div id="dx-end-wrap">
+        <label class="label-caps block mb-2">End</label>
+        <input type="date" id="dx-end" class="input-field"/>
+      </div>
+      <button id="dx-search" class="btn-primary flex items-center gap-2" style="height:38px;">
+        <span class="material-symbols-outlined" style="font-size:16px;">search</span> SEARCH
+      </button>
+      <button id="dx-preset-spike" class="btn-secondary" style="height:38px;">Sept 2025 spike week</button>
+      <span id="dx-complexity" class="text-xs text-muted ml-auto font-mono"></span>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid-4 mb-4">
+    <div class="card kpi-card left-cyan"><span class="label-caps">Matching Days</span><span class="font-mono text-lg" id="dx-kpi-days">—</span></div>
+    <div class="card kpi-card top-warning"><span class="label-caps">Total Events</span><span class="font-mono text-lg" id="dx-kpi-events">—</span></div>
+    <div class="card kpi-card left-success"><span class="label-caps">Avg Tone (All)</span><span class="font-mono text-lg" id="dx-kpi-tone">—</span></div>
+    <div class="card kpi-card left-india"><span class="label-caps">Spike Days</span><span class="font-mono text-lg" id="dx-kpi-spikes">—</span></div>
+  </div>
+
+  <div class="grid-2 mb-4" style="grid-template-columns: 3fr 2fr;">
+    <div class="card">
+      <div class="card-header"><span class="label-caps">Daily Tone &amp; Volume in Window</span></div>
+      <div class="card-body chart-container"><canvas id="chart-dx-window"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="label-caps">India vs China Tone in Window</span></div>
+      <div class="card-body chart-container"><canvas id="chart-dx-ic"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header"><span class="label-caps">Tagged Events in Window</span>
+      <span class="text-xs text-muted">from data/event_log.csv (manually verified)</span></div>
+    <div class="card-body p-0" style="overflow-x:auto;">
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Event</th><th>Detail</th><th>Source</th><th>Confidence</th></tr></thead>
+        <tbody id="dx-events-body"><tr><td colspan="5" class="text-muted text-xs">No tagged events.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 mb-4">
+    <button id="dx-headlines-btn" class="btn-primary" style="padding:6px 14px;font-size:11px;">
+      FETCH REAL HEADLINES FOR THIS WINDOW (LIVE GDELT)
+    </button>
+    <span class="text-xs text-muted">Pulls actual article titles via the GDELT DOC API for the selected days.</span>
+  </div>
+  <div class="card mb-4" id="dx-headlines-panel" style="display:none;">
+    <div class="card-header"><span class="label-caps">Live Headlines (GDELT DOC API)</span></div>
+    <div class="card-body feed-list" id="dx-headlines-list"></div>
+  </div>
+
+  <!-- Global filter toggle -->
+  <div class="card" style="border-left:3px solid var(--accent-cyan);">
+    <div class="card-body flex items-center gap-4">
+      <input type="checkbox" id="dx-global-filter" style="accent-color:var(--accent-cyan); width:16px;height:16px;"/>
+      <label for="dx-global-filter" class="text-sm cursor-pointer">
+        Apply this window as a <strong>global filter</strong> to the Dashboard &amp; Gen-Z timeline charts
+      </label>
+      <span id="dx-global-state" class="chip text-cyan" style="display:none;">FILTER ACTIVE</span>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║   VIEW: TRENDS & ANOMALIES (Task 2 + b)      ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="view-page" id="view-trends">
+  <h2 class="text-xl font-semibold mb-1">Trends &amp; Anomalies</h2>
+  <p class="text-sm text-muted mb-6">Beyond incident-level averages: daily/weekly tone per country, attention
+    (volume) vs sentiment (tone), all-neighbour comparison, spike-vs-tone correlation, and 2σ anomaly flags.</p>
+
+  <div class="card mb-4">
+    <div class="card-header" style="justify-content: space-between;">
+      <span class="label-caps">Tone Over Time — India vs China (2025)</span>
+      <select id="tr-granularity" class="input-field" style="width:auto;padding:2px 8px;font-size:11px;">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+    </div>
+    <div class="card-body chart-container chart-lg"><canvas id="chart-tr-tonetime"></canvas></div>
+    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border-dark);">
+      <strong>Country-comparison mode:</strong> click legend items to isolate/diff countries;
+      red markers = anomaly days (&gt;2σ from that country's own rolling mean).
+      Vertical annotations mark verified event-log dates and explain WHY coverage spiked.
+    </div>
+  </div>
+
+  <div class="grid-2 mb-4" style="grid-template-columns: 2fr 3fr;">
+    <div class="card">
+      <div class="card-header"><span class="label-caps">Article Volume Over Time (attention)</span></div>
+      <div class="card-body chart-container"><canvas id="chart-tr-volume"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="label-caps">Attention vs Sentiment — Volume × Tone scatter</span></div>
+      <div class="card-body chart-container"><canvas id="chart-tr-scatter"></canvas></div>
+      <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border-dark);" id="tr-scatter-note"></div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header"><span class="label-caps">Neighbour Comparison Heatmap — every country covering Nepal</span></div>
+    <div class="card-body p-0" style="overflow-x:auto;">
+      <table class="data-table" id="tr-heatmap"></table>
+    </div>
+    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border-dark);">
+      Rows sorted by coverage volume. Colour encodes average tone (red = hostile, green = positive).
+      Neighbours are highlighted; Bhutan remains the only neighbour with a positive tone (+1.64).
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="label-caps">Anomaly Log — |z| &gt; 2 vs own 7-day rolling mean</span></div>
+    <div class="card-body p-0" style="overflow-x:auto;">
+      <table class="data-table">
+        <thead><tr><th>Series</th><th>Date</th><th>Tone</th><th>Rolling μ</th><th>z-score</th></tr></thead>
+        <tbody id="tr-anomaly-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 mt-4">
+    <button id="tr-export-csv" class="btn-primary" style="padding:6px 14px;font-size:11px;">EXPORT CURRENT DATA (CSV)</button>
+    <button id="tr-print-report" class="btn-secondary" style="padding:6px 14px;font-size:11px;">PRINT / PDF SNAPSHOT</button>
+    <span class="text-xs text-muted">CSV downloads the daily dataset shown here; Print opens a clean snapshot of the whole dashboard.</span>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║   VIEW: LIVE FEED (user request #3 & #4)     ║
+     ║   Populated dynamically by feed.js           ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="view-page" id="view-livefeed">
+  <h2 class="text-xl font-semibold mb-1">Live News Feed</h2>
+  <p class="text-sm text-muted mb-2">Real headlines indexed by GDELT's global news index, grouped by publishing
+    country and language — including Hindi and Simplified Chinese native-language coverage. Auto-refreshes
+    every 15 minutes.</p>
+  <p class="text-xs text-muted mb-4">Historical reverse-direction statistics (Nepal's tone toward India/China over
+    the full crisis windows) are produced by <span class="font-mono">notebook_addendum.ipynb</span> in Colab —
+    this live view covers the "now" layer.</p>
+</div>
+
 </main>
 
   <script src="data_bundle.js"></script>
+  <script src="date_index.js"></script>
+  <script src="feed.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
