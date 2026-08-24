@@ -146,6 +146,18 @@ def main():
         for _, s in sorted(weekly.items())
     ]
 
+    # ---- NEW: extended regional-lens data (backend/build_extended.py) ------
+    # Optional: only present if the extended fetcher has been run. The three
+    # Regional Lens views degrade gracefully when these keys are absent.
+    ext_path = os.path.join(ROOT, "gdelt-dashboard", "data", "extended", "extended.json")
+    if os.path.exists(ext_path):
+        with open(ext_path, encoding="utf-8") as f:
+            ext = json.load(f)
+        bundle["neighbour_matrix"] = ext.get("neighbour_matrix", [])
+        bundle["cross_reaction"] = ext.get("cross_reaction", {})
+        bundle["dividend"] = ext.get("dividend", {})
+        bundle["extended_generated"] = ext.get("generated")
+
     # ---- Verify locked findings before writing ----
     for r in incidents:
         key = (r.get("country"), r.get("incident"))
