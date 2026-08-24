@@ -2,128 +2,249 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>NoiseFloor — Geopolitical Intelligence Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NoiseFloor — How India &amp; China Narrate Nepal | GDELT Media-Tone Intelligence</title>
+<meta name="description" content="NoiseFloor analyses 35.5M GDELT news events to measure how Indian and Chinese media narrate Nepal across three crises — the 2015 earthquake, the 2015 border blockade and the 2025 Gen-Z protests. Interactive charts, hypothesis testing, live headlines and a 3D coverage globe."/>
+<meta name="theme-color" content="#050506"/>
+<meta name="robots" content="index,follow"/>
+<link rel="canonical" href="./"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="NoiseFloor — Geopolitical Media-Tone Intelligence"/>
+<meta property="og:description" content="India's coverage of Nepal runs ~1.85 tone points more negative than China's — a structural gap confirmed at p = 0.0051. Explore the data."/>
+<meta property="og:image" content="og-image.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23050506'/%3E%3Cpath d='M5 18l4-7 4 12 4-16 4 11 3-5' stroke='%232CC8E8' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Dataset","name":"NoiseFloor — India/China media tone toward Nepal (GDELT)","description":"35.5M GDELT event records filtered to Nepal-related coverage across three crisis windows, with per-country tone aggregates, hypothesis tests and anomaly detection.","license":"https://www.gdeltproject.org/data.html","creator":{"@type":"Organization","name":"NoiseFloor capstone team"},"variableMeasured":["AvgTone","event volume","QuadClass shares","spike ratio"]}
+</script>
 
-<link rel="stylesheet" href="style.css" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
 <!-- ════════════ SIDEBAR ════════════ -->
-<nav class="sidebar">
+<nav class="sidebar" aria-label="Primary">
   <div class="sidebar-header">
-    <h1 class="text-xl font-bold">NoiseFloor</h1>
-    <span class="label-caps block">LIVE STATUS</span>
+    <span class="sidebar-logo"><span class="material-symbols-outlined">monitoring</span></span>
+    <span class="sidebar-title">NoiseFloor</span>
   </div>
   <div class="sidebar-nav">
-    <a class="nav-link active" data-view="dashboard">
-      <span class="material-symbols-outlined">dashboard</span> Dashboard
+    <div class="sidebar-group">Overview</div>
+    <a class="nav-link active" data-view="dashboard" data-title="Dashboard">
+      <span class="material-symbols-outlined">dashboard</span><span class="nav-text">Dashboard</span>
     </a>
-    <a class="nav-link" data-view="earthquake">
-      <span class="material-symbols-outlined">settings_input_antenna</span> Earthquake 2015
+
+    <div class="sidebar-group">Crises</div>
+    <a class="nav-link" data-view="earthquake" data-title="Earthquake 2015">
+      <span class="material-symbols-outlined">monitoring</span><span class="nav-text">Earthquake 2015</span>
     </a>
-    <a class="nav-link" data-view="blockade">
-      <span class="material-symbols-outlined">block</span> Blockade 2015
+    <a class="nav-link" data-view="blockade" data-title="Blockade 2015">
+      <span class="material-symbols-outlined">block</span><span class="nav-text">Blockade 2015</span>
     </a>
-    <a class="nav-link" data-view="genz">
-      <span class="material-symbols-outlined">diversity_3</span> Gen-Z 2025
+    <a class="nav-link" data-view="genz" data-title="Gen-Z 2025">
+      <span class="material-symbols-outlined">public</span><span class="nav-text">Gen-Z 2025</span>
     </a>
-    <a class="nav-link" data-view="dateexplorer">
-      <span class="material-symbols-outlined">calendar_search</span> Date Explorer
+
+    <div class="sidebar-group">Analysis</div>
+    <a class="nav-link" data-view="keyfindings" data-title="Key Findings">
+      <span class="material-symbols-outlined">search</span><span class="nav-text">Key Findings</span>
     </a>
-    <a class="nav-link" data-view="trends">
-      <span class="material-symbols-outlined">insights</span> Trends &amp; Anomalies
+    <a class="nav-link" data-view="hypothesis" data-title="Hypothesis Engine">
+      <span class="material-symbols-outlined">science</span><span class="nav-text">Hypothesis Engine</span>
     </a>
-    <a class="nav-link" data-view="livefeed">
-      <span class="material-symbols-outlined">rss_feed</span> Live Feed
+    <a class="nav-link" data-view="insights" data-title="Insight Engine">
+      <span class="material-symbols-outlined">psychology</span><span class="nav-text">Insight Engine</span>
     </a>
-    <a class="nav-link" data-view="keyfindings">
-      <span class="material-symbols-outlined">emoji_events</span> Key Findings
+    <a class="nav-link" data-view="dateexplorer" data-title="Date Explorer">
+      <span class="material-symbols-outlined">calendar_month</span><span class="nav-text">Date Explorer</span>
     </a>
-    <a class="nav-link" data-view="hypothesis">
-      <span class="material-symbols-outlined">model_training</span> Hypothesis Engine
+    <a class="nav-link" data-view="trends" data-title="Trends &amp; Anomalies">
+      <span class="material-symbols-outlined">insights</span><span class="nav-text">Trends &amp; Anomalies</span>
     </a>
-    <a class="nav-link" data-view="datasources">
-      <span class="material-symbols-outlined">database</span> Data Sources
+    <a class="nav-link" data-view="explorer" data-title="Data Explorer">
+      <span class="material-symbols-outlined">table_chart</span><span class="nav-text">Data Explorer</span>
     </a>
-    <a class="nav-link" data-view="methodology">
-      <span class="material-symbols-outlined">menu_book</span> Methodology
+
+    <div class="sidebar-group">Regional Lens</div>
+    <a class="nav-link" data-view="neighbours" data-title="Neighbour Watch">
+      <span class="material-symbols-outlined">travel_explore</span><span class="nav-text">Neighbour Watch</span>
     </a>
-    <a class="nav-link" data-view="explorer">
-      <span class="material-symbols-outlined">ios_share</span> Export
+    <a class="nav-link" data-view="crossreact" data-title="Cross-Reactions">
+      <span class="material-symbols-outlined">sync_alt</span><span class="nav-text">Cross-Reactions</span>
     </a>
+    <a class="nav-link" data-view="dividend" data-title="Nepal Dividend">
+      <span class="material-symbols-outlined">volunteer_activism</span><span class="nav-text">Nepal Dividend</span>
+    </a>
+
+    <div class="sidebar-group">Live</div>
+    <a class="nav-link" data-view="livefeed" data-title="Live Feed">
+      <span class="material-symbols-outlined">rss_feed</span><span class="nav-text">Live Feed</span>
+    </a>
+
+    <div class="sidebar-group">Reference</div>
+    <a class="nav-link" data-view="datasources" data-title="Data Sources">
+      <span class="material-symbols-outlined">database</span><span class="nav-text">Data Sources</span>
+    </a>
+    <a class="nav-link" data-view="methodology" data-title="Methodology">
+      <span class="material-symbols-outlined">menu_book</span><span class="nav-text">Methodology</span>
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-row"><span class="k">Dataset</span><span class="v">GDELT</span></div>
+    <div class="sidebar-footer-row"><span class="k">Last updated</span><span class="v">2025-10-01</span></div>
   </div>
 </nav>
 
-<!-- ════════════ MAIN CONTENT ════════════ -->
-<main class="main-content">
+<!-- ════════════ TOPBAR ════════════ -->
+<header class="topbar">
+  <span class="topbar-title" id="topbar-title">Dashboard</span>
+  <div class="topbar-right">
+    <span class="chip tone-pos">LIVE · GDELT 2.0</span>
+    <button class="btn-secondary" onclick="window.print()" type="button">
+      <span class="material-symbols-outlined" style="font-size:15px;">print</span> SNAPSHOT
+    </button>
+  </div>
+</header>
 
+<!-- ════════════ MAIN ════════════ -->
+<main class="main-content">
 
 <!-- ╔══════════════════════════════════════════════╗
      ║           VIEW: DASHBOARD                    ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page active" id="view-dashboard">
 
-  <!-- KPI Row -->
-  <div class="grid-4">
-    <div class="card kpi-card left-cyan">
-      <span class="label-caps">Events Ingested</span>
-      <span class="font-mono text-lg font-medium">35.52M</span>
+  <!-- KPI Row (Figma) -->
+  <div class="grid-4 mb-6">
+    <div class="card kpi-card">
+      <span class="label-caps">Total Events</span>
+      <span class="kpi-value">148,180</span>
+      <span class="kpi-sub">Across 3 crisis windows</span>
     </div>
-    
-    <div class="card kpi-card left-india">
-      <div class="flex justify-between items-start">
-        <span class="label-caps">India Mean Tone</span>
-        <span class="chip text-india">Structural</span>
-      </div>
-      <span class="font-mono text-lg font-medium">-2.3312</span>
+    <div class="card kpi-card">
+      <span class="label-caps">Countries Tracked</span>
+      <span class="kpi-value">96</span>
+      <span class="kpi-sub">With 50+ mentions of Nepal</span>
     </div>
-    
-    <div class="card kpi-card left-china">
-      <div class="flex justify-between items-start">
-        <span class="label-caps">China Mean Tone</span>
-        <span class="chip text-china">Drifting</span>
-      </div>
-      <span class="font-mono text-lg font-medium">-0.4808</span>
+    <div class="card kpi-card">
+      <span class="label-caps">India Avg Tone</span>
+      <span class="kpi-value text-india">-2.33</span>
+      <span class="kpi-sub">Highly critical baseline</span>
     </div>
-    
-    <div class="card kpi-card left-success">
-      <div class="flex justify-between items-start">
-        <span class="label-caps">T-Test Result</span>
-        <span class="chip text-success">Confirmed</span>
-      </div>
-      <span class="font-mono text-lg font-medium">p=0.0051</span>
+    <div class="card kpi-card">
+      <span class="label-caps">China Avg Tone</span>
+      <span class="kpi-value text-china">-0.48</span>
+      <span class="kpi-sub">Near-neutral baseline</span>
     </div>
   </div>
 
-  <!-- Sept 9 Spike Callout -->
-  <div class="card mb-6" style="border-left: 4px solid var(--accent-india); background: linear-gradient(90deg, rgba(255, 51, 51, 0.05) 0%, transparent 100%);">
-    <div class="card-body">
-      <div class="flex items-center gap-3 mb-2">
-        <span class="material-symbols-outlined text-india" style="font-size: 20px;">trending_up</span>
-        <h3 class="text-sm font-bold text-india">SEPT 9 SPIKE DETECTED</h3>
-      </div>
-      <p class="text-sm text-muted"><strong>2,370 events in a single day</strong> — an unprecedented 30.99x jump from the 30-day baseline of 76.47 events/day (Source: daily_sentiment).</p>
-      <p class="text-xs text-muted mt-2"><strong>What actually happened on Sept 9:</strong> Gen-Z protests peaked and turned violent — parliament was set ablaze, a curfew was imposed, and PM K.P. Sharma Oli <strong>resigned</strong>. The interim government under Sushila Karki was sworn in later, on <strong class="text-success">September 12</strong>. These are two distinct events on two distinct dates (see Data Sources → Event Log).</p>
-    </div>
-  </div>
-
-  <!-- Crisis Incident Cards -->
-  <div class="grid-3">
-    <!-- 2015 Earthquake -->
-    <div class="card kpi-card top-cyan" style="height: auto;">
+  <!-- Divergence chart + Globe -->
+  <div class="grid-2 mb-4" style="grid-template-columns: 2fr 1fr;">
+    <div class="card">
       <div class="card-header">
-        <h3 class="text-sm font-semibold">2015 Earthquake</h3>
+        <div>
+          <h3 class="text-sm font-semibold mb-1">10-Year Tone Divergence</h3>
+          <span class="text-xs text-dim">Average tone score during major crisis windows.</span>
+        </div>
+        <div class="flex gap-4 font-mono text-xs">
+          <span class="text-india">● India</span><span class="text-china">● China</span>
+        </div>
       </div>
-      <div class="card-body font-mono text-xs">
-        <div class="flex justify-between border-b" style="border-color: var(--border-dark); padding-bottom: 8px; margin-bottom: 8px;">
+      <div class="card-body chart-container chart-lg"><canvas id="chart-dash-divergence"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Coverage Globe</h3>
+          <span class="text-xs text-dim">Who on Earth covers Nepal — dot size = article volume.</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="globe-wrap" style="height: 300px;">
+          <canvas id="globe-canvas"></canvas>
+          <div class="globe-legend">
+            <span><i style="background:var(--accent-cyan);"></i>Nepal</span>
+            <span><i style="background:var(--accent-india);"></i>India → Nepal</span>
+            <span><i style="background:var(--accent-china);"></i>China → Nepal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spike callout + behaviour mix -->
+  <div class="grid-2 mb-4" style="grid-template-columns: 1fr 2fr;">
+    <div class="card" style="border-left: 3px solid var(--accent-india);">
+      <div class="card-body">
+        <span class="label-caps text-india">Sept 9, 2025 Spike</span>
+        <p class="text-sm text-muted" style="margin-top:10px;">
+          On a single day during the Gen-Z protests, Nepal generated <strong class="text-main">2,370 news events</strong> —
+          a <strong class="text-india">30.99×</strong> surge from the 76.47 events/day baseline.
+        </p>
+        <p class="text-xs text-dim" style="margin-top:8px;">
+          Sept 9 = protests peak &amp; PM Oli resigns; Sept 12 = Sushila Karki sworn in as interim leader.
+          Two distinct causal events, two dates (see Date Explorer → event log).
+        </p>
+        <a class="text-xs text-cyan cursor-pointer inline-block" style="margin-top:12px;" data-goto="genz">
+          View in Gen-Z 2025 <span class="material-symbols-outlined" style="font-size:13px;">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Event Behaviour Mix — 2015 vs 2025</h3>
+          <span class="text-xs text-dim">Cooperation recedes; material conflict rises (CAMEO QuadClass).</span>
+        </div>
+        <div class="flex gap-4 font-mono text-xs">
+          <span class="text-china">● 2015</span><span class="text-india">● 2025</span>
+        </div>
+      </div>
+      <div class="card-body chart-container chart-md"><canvas id="chart-dash-quad"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Hypothesis quick results (Figma bottom row) -->
+  <h3 class="text-sm font-semibold mb-2">Hypothesis Test Results</h3>
+  <div class="grid-4 mb-6">
+    <a class="card kpi-card cursor-pointer" data-goto="hypothesis">
+      <span class="label-caps">India/China Gap Real?</span>
+      <span class="font-mono text-sm text-success">YES · p = 0.0051</span>
+      <span class="kpi-sub">Paired t = −13.95, n = 3</span>
+    </a>
+    <a class="card kpi-card cursor-pointer" data-goto="hypothesis">
+      <span class="label-caps">India Change in 10y?</span>
+      <span class="font-mono text-sm text-muted">NO · p = 0.81</span>
+      <span class="kpi-sub">−2.26 → −2.43 → −2.30</span>
+    </a>
+    <a class="card kpi-card cursor-pointer" data-goto="hypothesis">
+      <span class="label-caps">Same News Triggers?</span>
+      <span class="font-mono text-sm text-muted">NO · r = −0.02</span>
+      <span class="kpi-sub">Parallel, disconnected narratives</span>
+    </a>
+    <a class="card kpi-card cursor-pointer" data-goto="hypothesis">
+      <span class="label-caps">China Drifting Negative?</span>
+      <span class="font-mono text-sm text-warning">YES · p = 0.015</span>
+      <span class="kpi-sub">−0.29 → −0.45 → −0.71</span>
+    </a>
+  </div>
+
+  <!-- Crisis summary cards (preserved) -->
+  <div class="grid-3">
+    <div class="card kpi-card top-cyan">
+      <h3 class="text-sm font-semibold mb-2">2015 Earthquake</h3>
+      <div class="font-mono text-xs w-full">
+        <div class="flex justify-between border-b" style="padding-bottom:8px; margin-bottom:8px;">
           <span class="text-muted">IND Tone</span><span>-2.2623</span>
         </div>
-        <div class="flex justify-between border-b" style="border-color: var(--border-dark); padding-bottom: 8px; margin-bottom: 8px;">
+        <div class="flex justify-between border-b" style="padding-bottom:8px; margin-bottom:8px;">
           <span class="text-muted">CHN Tone</span><span>-0.2866</span>
         </div>
         <div class="flex justify-between">
@@ -131,17 +252,13 @@
         </div>
       </div>
     </div>
-    
-    <!-- 2015 Border Blockade -->
-    <div class="card kpi-card top-warning" style="height: auto;">
-      <div class="card-header">
-        <h3 class="text-sm font-semibold">2015 Border Blockade</h3>
-      </div>
-      <div class="card-body font-mono text-xs">
-        <div class="flex justify-between border-b" style="border-color: var(--border-dark); padding-bottom: 8px; margin-bottom: 8px;">
+    <div class="card kpi-card top-warning">
+      <h3 class="text-sm font-semibold mb-2">2015 Border Blockade</h3>
+      <div class="font-mono text-xs w-full">
+        <div class="flex justify-between border-b" style="padding-bottom:8px; margin-bottom:8px;">
           <span class="text-muted">IND Tone</span><span>-2.4345</span>
         </div>
-        <div class="flex justify-between border-b" style="border-color: var(--border-dark); padding-bottom: 8px; margin-bottom: 8px;">
+        <div class="flex justify-between border-b" style="padding-bottom:8px; margin-bottom:8px;">
           <span class="text-muted">CHN Tone</span><span>-0.4450</span>
         </div>
         <div class="flex justify-between">
@@ -149,17 +266,13 @@
         </div>
       </div>
     </div>
-    
-    <!-- 2025 Gen-Z Protests -->
-    <div class="card kpi-card top-india" style="height: auto;">
-      <div class="card-header">
-        <h3 class="text-sm font-semibold">2025 Gen-Z Protests</h3>
-      </div>
-      <div class="card-body font-mono text-xs">
-        <div class="flex justify-between border-b" style="border-color: var(--border-dark); padding-bottom: 8px; margin-bottom: 8px;">
+    <div class="card kpi-card top-india">
+      <h3 class="text-sm font-semibold mb-2">2025 Gen-Z Protests</h3>
+      <div class="font-mono text-xs w-full">
+        <div class="flex justify-between border-b" style="padding-bottom:8px; margin-bottom:8px;">
           <span class="text-muted">IND Tone</span><span>-2.2958</span>
         </div>
-        <div class="flex justify-between border-b" style="border-color: var(--border-dark); padding-bottom: 8px; margin-bottom: 8px;">
+        <div class="flex justify-between border-b" style="padding-bottom:8px; margin-bottom:8px;">
           <span class="text-muted">CHN Tone</span><span>-0.7109</span>
         </div>
         <div class="flex justify-between">
@@ -168,275 +281,342 @@
       </div>
     </div>
   </div>
-
-  <!-- Bottom Row: Hypothesis Cards + Time Series Chart -->
-  <div class="grid-2">
-    <!-- Left: 2x2 Hypothesis Grid -->
-    <div class="grid-2" style="margin-bottom: 0;">
-      <div class="hyp-card">
-        <div class="flex justify-between items-center mb-2">
-          <span class="label-caps">HYP 01</span>
-          <span class="chip text-success">Confirmed</span>
-        </div>
-        <p class="text-xs text-muted mb-4">Indian tone significantly more negative during domestic crises.</p>
-        <div class="hyp-result-box">
-          t-stat: -13.9492<br/>p-val: 0.0051
-        </div>
-      </div>
-      
-      <div class="hyp-card">
-        <div class="flex justify-between items-center mb-2">
-          <span class="label-caps">HYP 02</span>
-          <span class="chip text-dim">Stable</span>
-        </div>
-        <p class="text-xs text-muted mb-4">India's tone stable over decade. No secular drift detected.</p>
-        <div class="hyp-result-box">
-          t-stat: -0.2418<br/>p-val: 0.8094
-        </div>
-      </div>
-      
-      <div class="hyp-card">
-        <div class="flex justify-between items-center mb-2">
-          <span class="label-caps">HYP 03</span>
-          <span class="chip text-china">Orthogonal</span>
-        </div>
-        <p class="text-xs text-muted mb-4">Day-to-day India/China tone vectors are statistically independent.</p>
-        <div class="hyp-result-box">
-          Pearson r: -0.0235<br/>p-val: 0.824
-        </div>
-      </div>
-      
-      <div class="hyp-card">
-        <div class="flex justify-between items-center mb-2">
-          <span class="label-caps">HYP 04</span>
-          <span class="chip text-warning">Linear Decay</span>
-        </div>
-        <p class="text-xs text-muted mb-4">China's neutrality is eroding. Secular drift toward negativity.</p>
-        <div class="hyp-result-box">
-          Drift: -0.29 → -0.71<br/>Δ = -0.4243 pts
-        </div>
-      </div>
-    </div>
-
-    <!-- Right: Time Series Chart -->
-    <div class="card">
-      <div class="card-header">
-        <h3 class="text-sm font-semibold">Time Series: Tone Divergence</h3>
-        <span class="chip text-muted" style="border-color: var(--border-dark)">2015 - 2025</span>
-      </div>
-      <div class="card-body chart-container chart-md">
-        <canvas id="chart-dashboard-timeseries"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <div class="card mt-4">
-    <div class="card-body text-sm text-muted">
-      <strong class="text-main mb-2 block">Dashboard Overview: How to read this page</strong>
-      <p class="mb-2">This main dashboard gives you a high-level summary of the entire project:</p>
-      <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6;">
-        <li><strong>Top Row (Events Ingested & Mean Tone):</strong> We scanned 35.52 Million news articles. Overall, India's tone is very negative (-2.33), while China's tone is relatively neutral (-0.48). The gap between them is scientifically "Confirmed" to be real.</li>
-        <li><strong>Second Row (Spike Detected):</strong> A massive spike in negative news happened on Sept 9 during the Gen-Z Protests.</li>
-        <li><strong>Middle Cards (The 3 Crises):</strong> A quick summary of the average tone for India vs China during the three major events we tracked. In all three, India is much more negative (higher Gap).</li>
-        <li><strong>Bottom Left (Hypotheses 1-4):</strong> These are the four main conclusions we tested. HYP 01 confirms India is more negative. HYP 02 confirms India hasn't changed its tone in 10 years. HYP 03 confirms India and China don't copy each other. HYP 04 confirms China is slowly getting slightly more negative over time.</li>
-        <li><strong>Bottom Right (Time Series Graph):</strong> This shows the tone over the last 10 years. You can see the huge dips during the 2015 Blockade and 2025 Protests.</li>
-      </ul>
-    </div>
-  </div>
 </div>
-
 
 <!-- ╔══════════════════════════════════════════════╗
      ║      VIEW: EARTHQUAKE 2015                   ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page" id="view-earthquake">
-  <h2 class="text-xl font-semibold mb-2">2015 Nepal Earthquake</h2>
-  <ul class="text-sm text-muted mb-6" style="list-style-type: disc; padding-left: 20px; line-height: 1.6;">
-    <li><strong>What happened:</strong> A massive 7.8 magnitude earthquake struck Nepal on April 25, 2015.</li>
-    <li><strong>Consequences:</strong> Devastating loss of life, widespread destruction of infrastructure, and a massive humanitarian crisis.</li>
-    <li><strong>How it affected Nepal:</strong> Millions were displaced, triggering an urgent need for international aid, search and rescue, and rebuilding efforts.</li>
-    <li><strong>How India Covered It (Media Bias):</strong> Indian media heavily covered their government's "Operation Maitri" rescue efforts. However, this coverage was widely criticized inside Nepal as being overly aggressive, PR-driven, and insensitive to victims, eventually sparking the #GoHomeIndianMedia trend.</li>
-    <li><strong>How China Covered It:</strong> Chinese media focused on their quiet, structural aid and infrastructure rebuilding efforts, portraying themselves as a reliable, non-intrusive neighbor.</li>
-  </ul>
+  <p class="view-intro">A 7.8-magnitude earthquake struck Nepal on 25 April 2015, killing nearly 9,000.
+    Both India and China mounted high-profile relief operations — yet Indian coverage stayed markedly
+    more critical than Chinese coverage of the same disaster.</p>
 
-  <div class="grid-4">
-    <div class="card kpi-card left-cyan">
-      <span class="label-caps">Nepal Events</span>
-      <span class="font-mono text-lg font-medium">73,804</span>
+  <div class="grid-4 mb-4">
+    <div class="card kpi-card">
+      <span class="label-caps">India Mean Tone</span>
+      <span class="kpi-value text-india">-2.26</span>
+      <span class="kpi-sub">Average media tone</span>
     </div>
-    <div class="card kpi-card left-india">
-      <span class="label-caps">India Tone</span>
-      <span class="font-mono text-lg font-medium text-india">-2.2623</span>
+    <div class="card kpi-card">
+      <span class="label-caps">China Mean Tone</span>
+      <span class="kpi-value text-china">-0.29</span>
+      <span class="kpi-sub">Average media tone</span>
     </div>
-    <div class="card kpi-card left-china">
-      <span class="label-caps">China Tone</span>
-      <span class="font-mono text-lg font-medium text-china">-0.2866</span>
-    </div>
-    <div class="card kpi-card left-success">
+    <div class="card kpi-card">
       <span class="label-caps">Tone Gap</span>
-      <span class="font-mono text-lg font-medium text-success">+1.9757</span>
+      <span class="kpi-value text-success">+1.98</span>
+      <span class="kpi-sub">China minus India</span>
+    </div>
+    <div class="card kpi-card">
+      <span class="label-caps">Event Days</span>
+      <span class="kpi-value">61</span>
+      <span class="kpi-sub">Active reporting days</span>
+    </div>
+  </div>
+
+  <div class="grid-2 mb-4" style="grid-template-columns: 2fr 1fr;">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Event-Aligned Tone Trajectory</h3>
+          <span class="text-xs text-dim">Average media tone centred on the trigger day (T&#8320;).</span>
+        </div>
+        <div class="flex gap-4 font-mono text-xs">
+          <span class="text-india">● India</span><span class="text-china">● China</span>
+        </div>
+      </div>
+      <div class="card-body chart-container chart-lg"><canvas id="chart-eq-aligned"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Coverage Volume</h3>
+          <span class="text-xs text-dim">Total events logged in this window.</span>
+        </div>
+      </div>
+      <div class="card-body flex flex-col gap-4" id="eq-volume-panel"></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-header">
-      <h3 class="text-sm font-semibold">Media Tone Timeline</h3>
-      <span class="chip text-muted" style="border-color: var(--border-dark)">Day 0 = April 25, 2015</span>
-    </div>
-    <div class="card-body chart-container chart-lg"><canvas id="chart-eq-timeline"></canvas></div>
-  </div>
-  
-  <div class="card mt-4" style="margin-top: 16px;">
+    <div class="card-header"><span class="label-caps">How to read this</span></div>
     <div class="card-body text-sm text-muted">
-      <strong class="text-main">What's in the Graph? (How to read this)</strong><br><br>
-      This line graph shows the <strong>Average Tone</strong> of news over time for both India (Red Line) and China (Cyan Line). 
-      <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px;">
-        <li><strong>X-Axis (Bottom):</strong> Days since the earthquake happened. "Day 0" is April 25, the day of the quake. "Day -1" and "Day -2" are the days <em>right before</em> it happened, while positive numbers are days after.</li>
-        <li><strong>Y-Axis (Left):</strong> The "Tone" score. Higher numbers mean positive news (cooperation, help). Lower negative numbers mean bad news (death, destruction, criticism).</li>
+      <strong class="text-main">What's in the graph?</strong> The trajectory chart centres every day on the
+      earthquake itself (T&#8320;), so the two countries' reactions can be compared like-for-like.
+      <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
+        <li><strong>Red line (India):</strong> drops sharply at T&#8320; and stays deep in negative territory —
+          coverage focused on chaos, blocked aid and criticism of Nepal's response.</li>
+        <li><strong>Cyan line (China):</strong> dips only mildly and recovers within days — rescue teams,
+          aid deliveries and diplomatic warmth dominated.</li>
       </ul>
-      <br>
-      <strong>What this means:</strong> Notice how the tone for both countries dips sharply (goes very low) around Day 0, reflecting the initial shock. However, India's tone remains significantly lower than China's in the post-quake recovery period, highlighting the diplomatic tension stemming from the #GoHomeIndianMedia backlash.
+      <strong class="text-main">Statistical finding:</strong> the +1.98 tone gap in this window is the second
+      largest of the three crises, and India's volume (1,277 events) trailed China's (1,849) — more coverage,
+      yet warmer, from Beijing.
     </div>
   </div>
 </div>
-
 
 <!-- ╔══════════════════════════════════════════════╗
-     ║      VIEW: BLOCKADE 2015                      ║
+     ║      VIEW: BLOCKADE 2015                     ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page" id="view-blockade">
-  <h2 class="text-xl font-semibold mb-2">2015 India-Nepal Border Blockade</h2>
-  <ul class="text-sm text-muted mb-6" style="list-style-type: disc; padding-left: 20px; line-height: 1.6;">
-    <li><strong>What happened:</strong> A 5-month economic and border blockade starting in September 2015, following the promulgation of Nepal's new constitution.</li>
-    <li><strong>Consequences:</strong> Severe disruptions to trade, transport, and daily life across the country.</li>
-    <li><strong>How it affected Nepal:</strong> Extreme shortages of essential supplies, including fuel, cooking gas, and vital medicines, causing a secondary humanitarian crisis shortly after the earthquake.</li>
-    <li><strong>How India Covered It (Media Bias):</strong> Indian media heavily downplayed the blockade, portraying it entirely as an internal Nepali political protest by Madhesi groups. They accused Nepal of ignoring minority rights, effectively deflecting blame away from the Indian government.</li>
-    <li><strong>How China Covered It:</strong> Chinese media actively criticized the blockade as "Indian hegemony" and bullying. China used this opportunity to step in and supply fuel to Nepal, breaking India's long-standing monopoly and portraying themselves as Nepal's savior.</li>
-  </ul>
+  <p class="view-intro">From September 2015, an undeclared border blockade — tied to Madhesi protests and
+    India's support for their constitutional demands — choked Nepal's fuel and medicine supplies for over
+    five months. Nepal's government publicly blamed India; Chinese coverage of the suffering was markedly
+    warmer than India's.</p>
 
-  <div class="grid-4">
-    <div class="card kpi-card left-warning">
-      <span class="label-caps">Nepal Events</span>
-      <span class="font-mono text-lg font-medium">49,873</span>
+  <div class="grid-4 mb-4">
+    <div class="card kpi-card">
+      <span class="label-caps">India Mean Tone</span>
+      <span class="kpi-value text-india">-2.43</span>
+      <span class="kpi-sub">Average media tone</span>
     </div>
-    <div class="card kpi-card left-india">
-      <span class="label-caps">India Tone</span>
-      <span class="font-mono text-lg font-medium text-india">-2.4345</span>
+    <div class="card kpi-card">
+      <span class="label-caps">China Mean Tone</span>
+      <span class="kpi-value text-china">-0.45</span>
+      <span class="kpi-sub">Average media tone</span>
     </div>
-    <div class="card kpi-card left-china">
-      <span class="label-caps">China Tone</span>
-      <span class="font-mono text-lg font-medium text-china">-0.4450</span>
-    </div>
-    <div class="card kpi-card left-success">
+    <div class="card kpi-card">
       <span class="label-caps">Tone Gap</span>
-      <span class="font-mono text-lg font-medium text-success">+1.9895</span>
+      <span class="kpi-value text-success">+1.99</span>
+      <span class="kpi-sub">China minus India</span>
+    </div>
+    <div class="card kpi-card">
+      <span class="label-caps">Event Days</span>
+      <span class="kpi-value">95</span>
+      <span class="kpi-sub">Active reporting days</span>
     </div>
   </div>
 
-  <div class="grid-2">
+  <div class="grid-2 mb-4" style="grid-template-columns: 2fr 1fr;">
     <div class="card">
-      <div class="card-header"><h3 class="text-sm font-semibold">Media Focus Shift (2015 Blockade vs 2025)</h3></div>
-      <div class="card-body chart-container" style="height: 300px;"><canvas id="chart-bl-quadclass"></canvas></div>
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Event-Aligned Tone Trajectory</h3>
+          <span class="text-xs text-dim">Average media tone centred on the trigger day (T&#8320;).</span>
+        </div>
+        <div class="flex gap-4 font-mono text-xs">
+          <span class="text-india">● India</span><span class="text-china">● China</span>
+        </div>
+      </div>
+      <div class="card-body chart-container chart-lg"><canvas id="chart-bl-aligned"></canvas></div>
     </div>
+
     <div class="card">
-      <div class="card-header"><h3 class="text-sm font-semibold">Timeline: Media Negativity</h3></div>
-      <div class="card-body chart-container" style="height: 300px;"><canvas id="chart-bl-timeline"></canvas></div>
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Coverage Volume</h3>
+          <span class="text-xs text-dim">Total events logged in this window.</span>
+        </div>
+      </div>
+      <div class="card-body flex flex-col gap-4" id="bl-volume-panel"></div>
     </div>
   </div>
 
-  <div class="card mt-4" style="margin-top: 16px;">
+  <div class="card mb-4">
+    <div class="card-header">
+      <div>
+        <h3 class="text-sm font-semibold mb-1">Event Behaviour Mix — 2015 vs 2025</h3>
+        <span class="text-xs text-dim">Share of events by CAMEO QuadClass. Cooperation recedes; material conflict rises.</span>
+      </div>
+      <div class="flex gap-4 font-mono text-xs">
+        <span class="text-china">● 2015</span><span class="text-india">● 2025</span>
+      </div>
+    </div>
+    <div class="card-body chart-container chart-md"><canvas id="chart-bl-quad"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="label-caps">How to read this</span></div>
     <div class="card-body text-sm text-muted">
-      <strong class="text-main">What's in the Graphs? (How to read this)</strong><br><br>
-      <strong>Left Graph (Bar Chart):</strong> This shows what kind of news was published. 
-      <ul style="list-style-type: disc; padding-left: 20px; margin-top: 4px; margin-bottom: 12px;">
-        <li><strong>V.Coop (Verbal Cooperation):</strong> Countries talking nicely or agreeing.</li>
-        <li><strong>M.Coop (Material Cooperation):</strong> Actually doing nice things, like sending aid or signing deals.</li>
-        <li><strong>V.Conf (Verbal Conflict):</strong> Arguing, complaining, or criticizing each other in the news.</li>
-        <li><strong>M.Conf (Material Conflict):</strong> Physical negative actions, like the border blockade itself, riots, or fighting.</li>
+      <strong class="text-main">Left chart (QuadClass bars):</strong> what <em>kind</em> of events were recorded.
+      <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
+        <li><strong>V.Coop (Verbal Cooperation):</strong> talking nicely, agreeing, praising.</li>
+        <li><strong>M.Coop (Material Cooperation):</strong> doing nice things — aid, grants, deals.</li>
+        <li><strong>V.Conf (Verbal Conflict):</strong> arguing, complaining, criticising in public.</li>
+        <li><strong>M.Conf (Material Conflict):</strong> physical negative actions — the blockade itself, riots, force.</li>
       </ul>
-      <strong>What this means:</strong> You can see the yellow and red bars showing exactly how the news shifted during the blockade compared to normal times, with massive spikes in "Material Conflict" due to the closed borders.
-      <br><br>
-      <strong>Right Graph (Line Chart):</strong> This shows the Average Tone over time for both India (Red Line) and China (Cyan Line). Both lines stay mostly negative (below 0) because the blockade was a tense, hostile event causing suffering. However, you can see India's line is noticeably lower (more negative) than China's throughout the entire event.
+      <strong class="text-main">Right chart (trajectory):</strong> both lines sit below zero for the whole crisis —
+      the blockade was hostile and painful — but India's line runs visibly lower than China's throughout.
+      The 2015→2025 QuadClass shift shows material conflict rising as cooperation recedes.
     </div>
   </div>
 </div>
-
 
 <!-- ╔══════════════════════════════════════════════╗
      ║      VIEW: GEN-Z 2025                        ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page" id="view-genz">
-  <h2 class="text-xl font-semibold mb-2">2025 Gen-Z Youth Protests</h2>
-  <ul class="text-sm text-muted mb-6" style="list-style-type: disc; padding-left: 20px; line-height: 1.6;">
-    <li><strong>What happened:</strong> A nationwide anti-corruption uprising driven by Gen-Z, centered in Kathmandu in late 2024 and 2025.</li>
-    <li><strong>Consequences:</strong> Widespread demonstrations, clashes with police, and significant political instability.</li>
-    <li><strong>How it affected Nepal:</strong> Paralyzed major city centers, forced government reshuffles, and highlighted deep economic frustrations among the youth.</li>
-    <li><strong>Media & Gov Reaction:</strong> Indian media coverage was highly volatile and sharply negative, focusing on instability. Chinese media remained relatively neutral or positive, treating it as an internal governance issue.</li>
-  </ul>
+  <p class="view-intro">A nationwide youth-led anti-corruption uprising exploded across Kathmandu in
+    September 2025. Protests peaked on <strong>Sept 9</strong> — parliament set ablaze, curfew imposed,
+    PM K.P. Sharma Oli resigning — and on <strong>Sept 12</strong> former chief justice Sushila Karki was
+    sworn in to lead an interim government. Indian coverage was volatile and sharply negative; Chinese
+    media stayed comparatively measured.</p>
 
-  <div class="grid-4">
-    <div class="card kpi-card left-india">
-      <span class="label-caps">Nepal Events</span>
-      <span class="font-mono text-lg font-medium">24,503</span>
+  <div class="grid-4 mb-4">
+    <div class="card kpi-card">
+      <span class="label-caps">India Mean Tone</span>
+      <span class="kpi-value text-india">-2.30</span>
+      <span class="kpi-sub">Average media tone</span>
     </div>
-    <div class="card kpi-card left-india">
-      <span class="label-caps">Sept 9 Spike</span>
-      <span class="font-mono text-lg font-medium text-india">30.99×</span>
+    <div class="card kpi-card">
+      <span class="label-caps">China Mean Tone</span>
+      <span class="kpi-value text-china">-0.71</span>
+      <span class="kpi-sub">Average media tone</span>
     </div>
-    <div class="card kpi-card left-india">
-      <span class="label-caps">India Tone</span>
-      <span class="font-mono text-lg font-medium text-india">-2.2958</span>
+    <div class="card kpi-card">
+      <span class="label-caps">Tone Gap</span>
+      <span class="kpi-value text-success">+1.58</span>
+      <span class="kpi-sub">China minus India</span>
     </div>
-    <div class="card kpi-card left-china">
-      <span class="label-caps">China Tone</span>
-      <span class="font-mono text-lg font-medium text-china">-0.7109</span>
+    <div class="card kpi-card">
+      <span class="label-caps">Event Days</span>
+      <span class="kpi-value">67</span>
+      <span class="kpi-sub">Active reporting days</span>
     </div>
   </div>
-  <div class="card mb-6">
+
+  <div class="grid-2 mb-4" style="grid-template-columns: 2fr 1fr;">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Event-Aligned Tone Trajectory</h3>
+          <span class="text-xs text-dim">Average media tone centred on the trigger day (T&#8320;).</span>
+        </div>
+        <div class="flex gap-4 font-mono text-xs">
+          <span class="text-india">● India</span><span class="text-china">● China</span>
+        </div>
+      </div>
+      <div class="card-body chart-container chart-lg"><canvas id="chart-gz-aligned"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Coverage Volume</h3>
+          <span class="text-xs text-dim">Total events logged in this window.</span>
+        </div>
+      </div>
+      <div class="card-body flex flex-col gap-4" id="gz-volume-panel"></div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
     <div class="card-header">
-      <h3 class="text-sm font-semibold">India vs China Daily Tone (Sept 2025)</h3>
+      <div>
+        <h3 class="text-sm font-semibold mb-1">Daily Event Volume — September 2025</h3>
+        <span class="text-xs text-dim">The protest signal: a single-day spike to 2,370 events on Sept 9.</span>
+      </div>
       <div class="flex gap-4 font-mono text-xs">
-        <span class="flex items-center gap-2"><span style="width: 10px; height: 2px; background: var(--accent-india); display: inline-block;"></span> India</span>
-        <span class="flex items-center gap-2"><span style="width: 10px; height: 2px; background: var(--accent-cyan); display: inline-block;"></span> China</span>
+        <span class="text-warning">● Spike ≥ 5×</span><span class="text-china">● Elevated</span>
       </div>
     </div>
-    <div class="card-body chart-container chart-lg"><canvas id="chart-genz-waveform"></canvas></div>
+    <div class="card-body chart-container chart-md"><canvas id="chart-genz-waveform"></canvas></div>
   </div>
 
-  <div class="card mt-4" style="margin-top: 16px;">
+  <div class="card mb-4">
+    <div class="card-header"><span class="label-caps">India vs China Daily Tone (Sept 2025)</span></div>
+    <div class="card-body chart-container chart-md"><canvas id="chart-genz-daily"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="label-caps">How to read this</span></div>
     <div class="card-body text-sm text-muted">
-      <strong class="text-main">What's in the Graph? (How to read this)</strong><br><br>
-      This chart tracks daily media tone during the intense Sept 2025 period.
+      <strong class="text-main">What's in the graphs?</strong>
       <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
-        <li><strong>Red Line (India):</strong> Highly volatile and deeply negative. They published 24,503 events about this, with a massive 30.99x spike on September 9th as protests peaked.</li>
-        <li><strong>Cyan Line (China):</strong> Stays much closer to 0 (neutral). They largely ignored the protests or treated them as a minor internal issue.</li>
+        <li><strong>Volume bars:</strong> the Sept 9 spike (30.99× baseline) marks the protest peak and Oli's
+          resignation; the Sept 12 marker marks the interim government's swearing-in.</li>
+        <li><strong>Red line (India):</strong> highly volatile and deeply negative — 24,503 events in the
+          window, framing the unrest as collapse and instability.</li>
+        <li><strong>Cyan line (China):</strong> stays much closer to neutral — treated as an internal
+          governance matter, with emphasis on citizen safety and continuity.</li>
       </ul>
-      <strong>Statistical finding:</strong> The Pearson correlation between India and China's daily tone is r = -0.0235. This means their day-to-day coverage is <em>completely statistically independent</em> — when Indian news panics, Chinese news doesn't react, proving they have entirely different media strategies regarding Nepal.
+      <strong class="text-main">Statistical finding:</strong> the Pearson correlation between India's and
+      China's daily tone is r = −0.0235 — their day-to-day coverage is statistically independent. When Indian
+      news panicked, Chinese news did not react.
     </div>
   </div>
-  </div>
 </div>
-
 
 <!-- ╔══════════════════════════════════════════════╗
      ║      VIEW: KEY FINDINGS                      ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page" id="view-keyfindings">
-  <h2 class="text-xl font-semibold mb-1">Key Findings</h2>
-  <p class="text-sm text-muted mb-6">Three standout discoveries from our 35.5 million event dataset that go beyond the main hypothesis tests.</p>
+  <p class="view-intro">Four hypotheses, tested against a decade of GDELT event records. Each asks a
+    structural question about how India and China narrate Nepal.</p>
 
-  <!-- Finding 1: Bhutan Anomaly -->
-  <div class="card mb-4" style="border-left: 3px solid #10B981;">
+  <div class="grid-2 mb-6">
+    <div class="finding-card">
+      <div class="finding-head">
+        <span class="font-mono text-xs"><span class="text-muted">H1</span> &nbsp;<span class="text-success">✓ CONFIRMED</span></span>
+        <span class="status-tag status-sig">SIGNIFICANT</span>
+      </div>
+      <h3 class="text-base font-semibold">The India–China tone gap is structural</h3>
+      <div class="finding-stat">+1.85<span class="unit">tone points</span></div>
+      <p class="text-sm text-muted">Across all three crises India's coverage of Nepal runs 1.85 tone points more
+        negative than China's. A paired t-test (t = −13.95, n = 3) rejects the null of no difference at
+        p = 0.0051. This is not noise — it is a fixed editorial posture.</p>
+      <div class="finding-p">p-value = 0.0051</div>
+    </div>
+
+    <div class="finding-card">
+      <div class="finding-head">
+        <span class="font-mono text-xs"><span class="text-muted">H2</span> &nbsp;<span class="text-muted">— NO CHANGE</span></span>
+        <span class="status-tag status-nosig">NOT SIG.</span>
+      </div>
+      <h3 class="text-base font-semibold">India's tone has not moved in ten years</h3>
+      <div class="finding-stat">-2.33<span class="unit">mean, 2015→2025</span></div>
+      <p class="text-sm text-muted">From the 2015 earthquake to the 2025 Gen-Z protests India's mean tone barely
+        shifts (−2.26 → −2.43 → −2.30). A regression on time yields p = 0.81 — statistically indistinguishable
+        from a flat line. The critical baseline is frozen.</p>
+      <div class="finding-p">p-value = 0.81</div>
+    </div>
+
+    <div class="finding-card">
+      <div class="finding-head">
+        <span class="font-mono text-xs"><span class="text-muted">H3</span> &nbsp;<span class="text-muted">✕ ZERO CORR.</span></span>
+        <span class="status-tag status-nosig">NOT SIG.</span>
+      </div>
+      <h3 class="text-base font-semibold">The two countries react to different triggers</h3>
+      <div class="finding-stat">r = -0.02<span class="unit">daily correlation</span></div>
+      <p class="text-sm text-muted">Day-to-day, India and China tone move independently (Pearson r = −0.0235,
+        p = 0.88). They are not responding to the same news events — they are running parallel, disconnected
+        narratives about the same country.</p>
+      <div class="finding-p">p-value = 0.8795</div>
+    </div>
+
+    <div class="finding-card">
+      <div class="finding-head">
+        <span class="font-mono text-xs"><span class="text-muted">H4</span> &nbsp;<span class="text-warning">↘ DRIFTING</span></span>
+        <span class="status-tag status-sig">SIGNIFICANT</span>
+      </div>
+      <h3 class="text-base font-semibold">China is drifting negative</h3>
+      <div class="finding-stat">-0.29 → -0.71<span class="unit">across crises</span></div>
+      <p class="text-sm text-muted">China's near-neutral baseline is eroding: −0.29 (Earthquake) → −0.45
+        (Blockade) → −0.71 (Gen-Z). The downward trend is significant at p = 0.015 — a slow convergence toward
+        India's critical stance.</p>
+      <div class="finding-p">p-value = 0.015</div>
+    </div>
+  </div>
+
+  <!-- Preserved standout discoveries -->
+  <h3 class="text-sm font-semibold mb-2">Standout discoveries beyond the tests</h3>
+
+  <div class="card mb-4" style="border-left: 3px solid var(--accent-success);">
     <div class="card-header" style="justify-content: flex-start; gap: 8px;">
-      <span class="material-symbols-outlined" style="color: #10B981;">flag</span>
-      <span class="label-caps" style="color: #10B981;">Finding #1 — The Bhutan Anomaly</span>
+      <span class="material-symbols-outlined text-success">flag</span>
+      <span class="label-caps text-success">Finding #1 — The Bhutan Anomaly</span>
     </div>
     <div class="card-body">
-      <p class="text-sm text-muted mb-4">Out of <strong>96 countries</strong> that published news about Nepal, only <strong style="color: #10B981;">ONE</strong> has a positive average tone: <strong style="color: #10B981;">Bhutan (+1.64)</strong>. Every other nation on earth — including self-described allies like India — covers Nepal with a negative tone. Nepal's only true friend in the global media data is its tiny Himalayan neighbor.</p>
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
-        <div class="card kpi-card" style="border-left: 3px solid #10B981;">
+      <p class="text-sm text-muted mb-4">Out of <strong>96 countries</strong> that published news about Nepal, only
+        <strong class="text-success">ONE</strong> has a positive average tone: <strong class="text-success">Bhutan (+1.64)</strong>.
+        Every other nation on earth — including self-described allies like India — covers Nepal with a negative tone.
+        Nepal's only true friend in the global media data is its tiny Himalayan neighbour.</p>
+      <div class="grid-4">
+        <div class="card kpi-card" style="border-left: 3px solid var(--accent-success);">
           <span class="label-caps">Bhutan</span>
-          <span class="font-mono text-lg font-medium" style="color: #10B981;">+1.64</span>
+          <span class="font-mono text-lg font-medium text-success">+1.64</span>
         </div>
         <div class="card kpi-card left-india">
           <span class="label-caps">India</span>
@@ -454,634 +634,453 @@
     </div>
   </div>
 
-  <!-- Finding 2: China Drift -->
-  <div class="card mb-4" style="border-left: 3px solid #FFBF00;">
+  <div class="card mb-4" style="border-left: 3px solid var(--accent-warning);">
     <div class="card-header" style="justify-content: flex-start; gap: 8px;">
-      <span class="material-symbols-outlined" style="color: #FFBF00;">trending_down</span>
-      <span class="label-caps" style="color: #FFBF00;">Finding #2 — China's Secular Drift (HX-004)</span>
+      <span class="material-symbols-outlined text-warning">trending_down</span>
+      <span class="label-caps text-warning">Finding #2 — China's Secular Drift (HX-004)</span>
     </div>
     <div class="card-body">
-      <p class="text-sm text-muted mb-6">China started nearly neutral about Nepal in 2015. But with each crisis, their coverage has gotten measurably more negative. This drift is statistically confirmed (p = 0.015). If the trend continues, China's media will eventually look like India's — but we're still decades away from that.</p>
-      <div style="display: flex; align-items: flex-end; gap: 48px; justify-content: center; margin-bottom: 24px;">
-        <div style="text-align: center;">
-          <div class="font-mono text-sm text-china" style="margin-bottom: 8px;">-0.29</div>
-          <div style="width: 90px; height: 36px; background: linear-gradient(180deg, #00FFFF 0%, #009999 100%);"></div>
-          <div class="text-xs text-muted" style="margin-top: 10px; line-height: 1.4;">Earthquake<br>2015</div>
-        </div>
-        <div class="font-mono text-warning" style="padding-bottom: 50px; font-size: 20px;">→</div>
-        <div style="text-align: center;">
-          <div class="font-mono text-sm text-china" style="margin-bottom: 8px;">-0.45</div>
-          <div style="width: 90px; height: 56px; background: linear-gradient(180deg, #00BBBB 0%, #007777 100%);"></div>
-          <div class="text-xs text-muted" style="margin-top: 10px; line-height: 1.4;">Blockade<br>2015</div>
-        </div>
-        <div class="font-mono text-warning" style="padding-bottom: 50px; font-size: 20px;">→</div>
-        <div style="text-align: center;">
-          <div class="font-mono text-sm text-china" style="margin-bottom: 8px;">-0.71</div>
-          <div style="width: 90px; height: 88px; background: linear-gradient(180deg, #009999 0%, #004444 100%);"></div>
-          <div class="text-xs text-muted" style="margin-top: 10px; line-height: 1.4;">Gen-Z<br>2025</div>
-        </div>
+      <p class="text-sm text-muted mb-4">China started nearly neutral about Nepal in 2015. But with each crisis,
+        their coverage has gotten measurably more negative. This drift is statistically confirmed (p = 0.015).
+        If the trend continues, China's media will eventually look like India's — but we're still decades away
+        from that.</p>
+      <div class="chart-container chart-md" style="margin-bottom:14px;">
+        <canvas id="chart-kf-drift"></canvas>
       </div>
-      <div class="text-xs text-muted" style="text-align: center; border-top: 1px solid var(--border-dark); padding-top: 14px;">
-        <strong class="text-warning">Δ = −0.42 points over 10 years (p = 0.015).</strong> The bars grow taller each crisis — China's coverage of Nepal is unambiguously getting more critical.
+      <div class="text-xs text-muted" style="text-align:center; border-top:1px solid var(--border); padding-top:14px;">
+        <strong class="text-warning">Δ = −0.42 points over 10 years (p = 0.015).</strong> The bars grow taller each
+        crisis — China's coverage of Nepal is unambiguously getting more critical.
       </div>
     </div>
   </div>
 
-  <!-- Finding 3: Top 10 Divergence Days -->
-  <div class="card" style="border-left: 3px solid #FF3333;">
+  <div class="card" style="border-left: 3px solid var(--accent-india);">
     <div class="card-header" style="justify-content: flex-start; gap: 8px;">
       <span class="material-symbols-outlined text-india">compare_arrows</span>
-      <span class="label-caps" style="color: #FF3333;">Finding #3 — Top 10 Days: Biggest India vs China Tone Gap</span>
+      <span class="label-caps text-india">Finding #3 — Top 10 Days: Biggest India vs China Tone Gap</span>
     </div>
-    <div class="card-body p-0" style="padding: 0; overflow-x: auto;">
+    <div class="card-body p-0" style="overflow-x: auto;">
       <table class="data-table">
         <thead>
           <tr>
             <th>Date (2025)</th>
-            <th style="text-align: right;">India Tone</th>
-            <th style="text-align: right;">China Tone</th>
-            <th style="text-align: right;">Gap</th>
-            <th style="color: #FF3333;">Why India?</th>
-            <th style="color: #00FFFF;">Why China?</th>
+            <th style="text-align:right;">India Tone</th>
+            <th style="text-align:right;">China Tone</th>
+            <th style="text-align:right;">Gap</th>
+            <th class="text-india">Why India?</th>
+            <th class="text-china">Why China?</th>
           </tr>
         </thead>
+        <tbody>
           <tr>
             <td class="font-mono">Sep 08</td>
-            <td style="text-align: right;" class="text-india font-bold">-7.41</td>
-            <td style="text-align: right;" class="text-china">0.00</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">7.41</span><br>
-              <span class="text-xs text-muted">IND Neg</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-7.41</td>
+            <td style="text-align:right;" class="text-china">0.00</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">7.41</span><br><span class="text-xs text-muted">IND Neg</span></td>
             <td class="text-xs text-muted">Day before the spike — early protest violence already in Indian headlines</td>
             <td class="text-xs text-muted">Neutral/no significant Nepal coverage on this day</td>
           </tr>
-          <tr style="background-color: rgba(255, 255, 255, 0.03);">
+          <tr style="background-color: rgba(255,255,255,0.03);">
             <td class="font-mono">Sep 09</td>
-            <td style="text-align: right;" class="text-india font-bold">-5.96</td>
-            <td style="text-align: right;" class="text-china font-bold">-4.72</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">1.24</span><br>
-              <span class="text-xs text-muted">Both Neg</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-5.96</td>
+            <td style="text-align:right;" class="text-china font-bold">-4.72</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">1.24</span><br><span class="text-xs text-muted">Both Neg</span></td>
             <td class="text-xs text-muted">Massive spike in events as Gen-Z protests intensify</td>
             <td class="text-xs text-muted">Acknowledged protests as unrest grew near their border</td>
           </tr>
-          <tr style="background-color: rgba(255, 255, 255, 0.03);">
+          <tr style="background-color: rgba(255,255,255,0.03);">
             <td class="font-mono">Sep 10</td>
-            <td style="text-align: right;" class="text-india font-bold">-4.35</td>
-            <td style="text-align: right;" class="text-china font-bold">-5.62</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">1.27</span><br>
-              <span class="text-xs text-muted">Both Neg</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-4.35</td>
+            <td style="text-align:right;" class="text-china font-bold">-5.62</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">1.27</span><br><span class="text-xs text-muted">Both Neg</span></td>
             <td class="text-xs text-muted">Continued coverage of the political crisis and unrest</td>
             <td class="text-xs text-muted">Strongly criticized the instability on their border</td>
           </tr>
-          <tr style="background-color: rgba(255, 255, 255, 0.03);">
+          <tr style="background-color: rgba(255,255,255,0.03);">
             <td class="font-mono">Sep 11</td>
-            <td style="text-align: right;" class="text-india font-bold">-3.72</td>
-            <td style="text-align: right;" class="text-china font-bold">-3.31</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">0.41</span><br>
-              <span class="text-xs text-muted">Both Neg</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-3.72</td>
+            <td style="text-align:right;" class="text-china font-bold">-3.31</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">0.41</span><br><span class="text-xs text-muted">Both Neg</span></td>
             <td class="text-xs text-muted">Reporting on negotiations to end the crisis</td>
             <td class="text-xs text-muted">Focused on the economic impact of the unrest</td>
           </tr>
-          <tr style="background-color: rgba(255, 255, 255, 0.05); border-left: 2px solid #10B981;">
+          <tr style="background-color: rgba(255,255,255,0.05); border-left: 2px solid var(--accent-success);">
             <td class="font-mono">Sep 12</td>
-            <td style="text-align: right;" class="text-india font-bold">-3.55</td>
-            <td style="text-align: right;" class="text-china font-bold">-3.77</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">0.22</span><br>
-              <span class="text-xs text-muted">Both Neg</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-3.55</td>
+            <td style="text-align:right;" class="text-china font-bold">-3.77</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">0.22</span><br><span class="text-xs text-muted">Both Neg</span></td>
             <td class="text-xs text-muted">Interim government formed; tone starts to stabilize</td>
             <td class="text-xs text-muted">Interim government formed; cautious reporting</td>
           </tr>
+
           <tr>
             <td class="font-mono">Sep 16</td>
-            <td style="text-align: right;" class="text-india font-bold">-10.25</td>
-            <td style="text-align: right;" class="text-china">-1.19</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">9.06</span><br>
-              <span class="text-xs text-muted">IND Neg</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-10.25</td>
+            <td style="text-align:right;" class="text-china">-1.19</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">9.06</span><br><span class="text-xs text-muted">IND Neg</span></td>
             <td class="text-xs text-muted">Peak protest week — heavy coverage of police crackdowns</td>
             <td class="text-xs text-muted">Framed largely as Nepal's internal governance issue</td>
           </tr>
           <tr>
             <td class="font-mono">Sep 20</td>
-            <td style="text-align: right;" class="text-india font-bold">-2.98</td>
-            <td style="text-align: right;" class="text-china font-bold">+11.62</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">14.60</span><br>
-              <span class="text-xs text-muted">IND Neg, CHN Pos</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-2.98</td>
+            <td style="text-align:right;" class="text-china font-bold">+11.62</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">14.60</span><br><span class="text-xs text-muted">IND Neg, CHN Pos</span></td>
             <td class="text-xs text-muted">Still covering ongoing political instability</td>
             <td class="text-xs text-muted">Publishing articles on China-Nepal trade deals</td>
           </tr>
           <tr>
             <td class="font-mono">Sep 27</td>
-            <td style="text-align: right;" class="text-india font-bold">-12.40</td>
-            <td style="text-align: right;" class="text-china font-bold">+3.50</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">15.90</span><br>
-              <span class="text-xs text-muted">IND Neg, CHN Pos</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-12.40</td>
+            <td style="text-align:right;" class="text-china font-bold">+3.50</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">15.90</span><br><span class="text-xs text-muted">IND Neg, CHN Pos</span></td>
             <td class="text-xs text-muted">Reporting violent clashes in Kathmandu</td>
             <td class="text-xs text-muted">Covering a new infrastructure cooperation announcement</td>
           </tr>
           <tr>
             <td class="font-mono">Oct 27</td>
-            <td style="text-align: right;" class="text-india font-bold">-1.41</td>
-            <td style="text-align: right;" class="text-china font-bold">+8.50</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">9.91</span><br>
-              <span class="text-xs text-muted">IND Neg, CHN Pos</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-1.41</td>
+            <td style="text-align:right;" class="text-china font-bold">+8.50</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">9.91</span><br><span class="text-xs text-muted">IND Neg, CHN Pos</span></td>
             <td class="text-xs text-muted">Reporting on economic challenges and border issues</td>
             <td class="text-xs text-muted">Promoting a major Chinese investment project</td>
           </tr>
           <tr>
             <td class="font-mono">Nov 03</td>
-            <td style="text-align: right;" class="text-india font-bold">-7.00</td>
-            <td style="text-align: right;" class="text-china font-bold">+5.58</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">12.58</span><br>
-              <span class="text-xs text-muted">IND Neg, CHN Pos</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">-7.00</td>
+            <td style="text-align:right;" class="text-china font-bold">+5.58</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">12.58</span><br><span class="text-xs text-muted">IND Neg, CHN Pos</span></td>
             <td class="text-xs text-muted">Covering Nepal government reshuffles</td>
-            <td class="text-xs text-muted">Highlighting Belt & Road cooperation progress</td>
+            <td class="text-xs text-muted">Highlighting Belt &amp; Road cooperation progress</td>
           </tr>
           <tr>
             <td class="font-mono">Nov 13</td>
-            <td style="text-align: right;" class="text-india font-bold">+1.91</td>
-            <td style="text-align: right;" class="text-china font-bold">-6.36</td>
-            <td style="text-align: right;">
-              <span class="font-bold" style="color: #FFBF00;">8.27</span><br>
-              <span class="text-xs text-muted">IND Pos, CHN Neg</span>
-            </td>
+            <td style="text-align:right;" class="text-india font-bold">+1.91</td>
+            <td style="text-align:right;" class="text-china font-bold">-6.36</td>
+            <td style="text-align:right;"><span class="font-bold text-warning">8.27</span><br><span class="text-xs text-muted">IND Pos, CHN Neg</span></td>
             <td class="text-xs text-muted">Covered new connectivity agreement positively</td>
             <td class="text-xs text-muted">Reporting on delayed repayments on Chinese loans</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="card-body text-xs text-muted" style="border-top: 1px solid var(--border-dark); padding-top: 12px;">
-      <strong class="text-main">What this proves:</strong> On some days the gap between India and China's coverage reaches <strong>15.9 tone points</strong>. Sometimes India is extremely negative while China is positive — and sometimes the reverse. This directly proves HX-003: they are watching completely different Nepals.
+    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border); padding-top:12px;">
+      <strong class="text-main">What this proves:</strong> On some days the gap between India and China's coverage
+      reaches <strong>15.9 tone points</strong>. Sometimes India is extremely negative while China is positive —
+      and sometimes the reverse. This directly proves HX-003: they are watching completely different Nepals.
     </div>
   </div>
 </div>
 
-
 <!-- ╔══════════════════════════════════════════════╗
-     ║      VIEW: HYPOTHESIS ENGINE                  ║
+     ║      VIEW: HYPOTHESIS ENGINE                 ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page" id="view-hypothesis">
-  <h2 class="text-xl font-semibold mb-1">Hypothesis Engine</h2>
-  <p class="text-sm text-muted mb-6">Select a crisis and run the statistical test to compare India vs China media tone. The chart will update to show the selected crisis distribution.</p>
+  <p class="view-intro">Model each actor's tone as a Gaussian distribution and run a two-sample test for the
+    India–China gap. Pick a crisis window and execute.</p>
 
-  <div class="grid-2" style="grid-template-columns: 1fr 2fr;">
-    <!-- Parameters Panel -->
+  <div class="grid-2 mb-4" style="grid-template-columns: 2fr 1fr;">
     <div class="card">
-      <div class="card-header"><span class="label-caps">Parameters</span></div>
-      <div class="card-body flex flex-col gap-4">
+      <div class="card-header">
         <div>
-          <label class="label-caps block mb-2">Target Crisis</label>
-          <select id="hyp-crisis-select" class="input-field">
-            <option value="all">All Crises (Combined)</option>
-            <option value="earthquake">Earthquake 2015</option>
-            <option value="blockade">Blockade 2015</option>
-            <option value="genz">Gen-Z Protests 2025</option>
-          </select>
+          <h3 class="text-sm font-semibold mb-1">Tone Probability Density</h3>
+          <span class="text-xs text-dim">Modelled distribution of daily tone per actor.</span>
         </div>
-        <div>
-          <label class="label-caps block mb-2">Metric</label>
-          <label class="flex items-center gap-2 mb-2 text-sm cursor-pointer">
-            <input type="radio" name="hyp-metric" value="tone" checked style="accent-color: var(--accent-cyan);"> Tone Divergence
-          </label>
-          <label class="flex items-center gap-2 text-sm text-muted cursor-pointer">
-            <input type="radio" name="hyp-metric" value="frequency" style="accent-color: var(--accent-cyan);"> Event Frequency
-          </label>
-        </div>
-        <button id="btn-run-hypothesis" class="btn-primary flex justify-center items-center gap-2">
-          <span class="material-symbols-outlined" id="hyp-spinner" style="display:none; animation: spin 1s linear infinite; font-size:16px;">progress_activity</span>
-          <span id="hyp-btn-text">RUN TEST</span>
-        </button>
-        <div id="hyp-result-panel" style="display:none;" class="hyp-result-box text-xs">
-          <span class="text-success font-bold block mb-1">✓ TEST COMPLETE</span>
-          <span id="hyp-result-text"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Density Chart -->
-    <div class="card">
-      <div class="card-header" style="justify-content: space-between;">
-        <span class="label-caps">Density Distribution: Tone (India vs China)</span>
         <div class="flex gap-4 font-mono text-xs">
-          <span style="color:#FF3333">— India</span><span style="color:#00FFFF">— China</span>
+          <span class="text-india">● India</span><span class="text-china">● China</span>
         </div>
       </div>
       <div class="card-body chart-container chart-lg"><canvas id="chart-hyp-density"></canvas></div>
     </div>
-  </div>
-
-  <div class="flex flex-col gap-4">
-    <div class="card">
-      <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-        <span class="label-caps">Statistical Results Matrix</span>
-      </div>
-      <div class="card-body p-0" style="padding: 0; overflow-x: auto;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>HYP_ID</th>
-              <th>Null Hypothesis (H₀)</th>
-              <th style="text-align: right;">T-Stat</th>
-              <th style="text-align: right;">P-Value</th>
-              <th style="text-align: right;">Significance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-cyan font-bold">HX-001</td>
-              <td>μ(India) = μ(China) [Tone]</td>
-              <td style="text-align: right;">-13.95</td>
-              <td style="text-align: right;">0.0051</td>
-              <td style="text-align: right;"><span class="chip text-india">REJECTED</span></td>
-            </tr>
-            <tr>
-              <td class="text-cyan font-bold">HX-002</td>
-              <td>μ(India₂₀₁₅) = μ(India₂₀₂₅) [Stability]</td>
-              <td style="text-align: right;">-0.24</td>
-              <td style="text-align: right;">0.8094</td>
-              <td style="text-align: right;"><span class="chip text-dim">STABLE</span></td>
-            </tr>
-            <tr>
-              <td class="text-cyan font-bold">HX-003</td>
-              <td>ρ(India, China) = 0 [Correlation]</td>
-              <td style="text-align: right;">-0.0235</td>
-              <td style="text-align: right;">0.824</td>
-              <td style="text-align: right;"><span class="chip text-success">CONFIRMED</span></td>
-            </tr>
-            <tr>
-              <td class="text-cyan font-bold">HX-004</td>
-              <td>China Drift = 0 [Secular Regression]</td>
-              <td style="text-align: right;">-2.90</td>
-              <td style="text-align: right;">0.015</td>
-              <td style="text-align: right;"><span class="chip text-india">REJECTED</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
     <div class="card">
-      <div class="card-header">
-        <span class="label-caps">Summary</span>
-        <span class="material-symbols-outlined text-muted" style="font-size:16px;">insights</span>
-      </div>
-      <div class="card-body text-sm text-muted">
-        <strong class="text-main mb-2 block">How to read the Density Graph:</strong>
-        <p class="mb-4">These two "bell curves" (bubbles) show the distribution of all news articles. The peak of the curve is the average tone. Because the red curve (India) is further to the left (negative numbers), it means Indian news was generally much more negative than Chinese news (cyan curve, closer to 0). When you click <strong>RUN TEST</strong>, the curves shift to show the exact data for the crisis you selected!</p>
-
-        <strong class="text-main mb-2 block">What are the "Metrics"?</strong>
-        <ul style="list-style-type: disc; padding-left: 20px; margin-bottom: 16px;">
-          <li><strong>Tone Divergence:</strong> This measures how <em>positive or negative</em> the news is (the mood of the coverage).</li>
-          <li><strong>Event Frequency:</strong> This measures <em>how much</em> news is being published (the total volume of articles).</li>
-        </ul>
-
-        <strong class="text-main mb-2 block">How to read the Statistical Matrix (HX-001 to HX-004):</strong>
-        <p class="mb-2">A <strong>Null Hypothesis (H₀)</strong> is a default assumption. A <strong>P-Value</strong> under 0.05 means the assumption is WRONG (Rejected). Here's what we tested:</p>
-        <ul style="list-style-type: disc; padding-left: 20px; margin-bottom: 16px;">
-          <li class="mb-1"><strong>HX-001 [Tone]:</strong> Assumption: India and China have the same average tone. <span class="text-india font-bold">REJECTED</span>. (Fact: India is much more negative).</li>
-          <li class="mb-1"><strong>HX-002 [Stability]:</strong> Assumption: India's tone changed between 2015 and 2025. <span class="text-dim font-bold">STABLE</span>. (Fact: India's tone has stayed exactly the same over 10 years).</li>
-          <li class="mb-1"><strong>HX-003 [Correlation]:</strong> Assumption: Indian and Chinese media do NOT copy each other. <span class="text-success font-bold">CONFIRMED</span>. (Fact: When Indian news panics, Chinese news doesn't react. They cover different things).</li>
-          <li class="mb-1"><strong>HX-004 [Secular Regression]:</strong> Assumption: China's overall tone is not changing. <span class="text-india font-bold">REJECTED</span>. (Fact: China is slowly drifting towards being slightly more critical over time).</li>
-        </ul>
-
-        <p class="mb-4"><strong class="text-main">What does this all mean in plain English?</strong></p>
-        <ul style="list-style-type: decimal; padding-left: 20px; line-height: 1.6;">
-          <li class="mb-2">Overall, China's news about Nepal is consistently much more positive and friendly than India's news, which tends to be more critical.</li>
-          <li class="mb-2">Over the last 10 years, India's tone has stayed exactly the same. However, China is slowly becoming slightly more critical of Nepal recently.</li>
-          <li>Day to day, India and China don't copy each other. When Indian news is negative, Chinese news isn't necessarily reacting to it. They cover entirely different stories about Nepal.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- China Secular Drift Visualization -->
-  <div class="card" style="margin-top: 16px;">
-    <div class="card-header">
-      <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined" style="color: #FFBF00; font-size: 18px;">trending_down</span>
-        <span class="label-caps">HX-004 Proof: China's Secular Drift — Tone Getting Worse Over 10 Years</span>
-      </div>
-    </div>
-    <div class="card-body" style="padding: 32px;">
-      <div style="display: flex; align-items: flex-end; gap: 48px; justify-content: center; margin-bottom: 24px;">
-        <!-- Bar 1: Earthquake -->
-        <div style="text-align: center;">
-          <div class="font-mono text-sm text-china" style="margin-bottom: 8px;">-0.29</div>
-          <div style="width: 90px; height: 36px; background: linear-gradient(180deg, #00FFFF 0%, #009999 100%);"></div>
-          <div class="text-xs text-muted" style="margin-top: 10px; line-height: 1.4;">Earthquake<br>2015</div>
-        </div>
-        <div class="font-mono text-warning" style="padding-bottom: 50px; font-size: 20px;">→</div>
-        <!-- Bar 2: Blockade -->
-        <div style="text-align: center;">
-          <div class="font-mono text-sm text-china" style="margin-bottom: 8px;">-0.45</div>
-          <div style="width: 90px; height: 56px; background: linear-gradient(180deg, #00BBBB 0%, #007777 100%);"></div>
-          <div class="text-xs text-muted" style="margin-top: 10px; line-height: 1.4;">Blockade<br>2015</div>
-        </div>
-        <div class="font-mono text-warning" style="padding-bottom: 50px; font-size: 20px;">→</div>
-        <!-- Bar 3: Gen-Z -->
-        <div style="text-align: center;">
-          <div class="font-mono text-sm text-china" style="margin-bottom: 8px;">-0.71</div>
-          <div style="width: 90px; height: 88px; background: linear-gradient(180deg, #009999 0%, #004444 100%);"></div>
-          <div class="text-xs text-muted" style="margin-top: 10px; line-height: 1.4;">Gen-Z<br>2025</div>
-        </div>
-      </div>
-      <div class="text-xs text-muted" style="text-align: center; border-top: 1px solid var(--border-dark); padding-top: 14px;">
-        <strong class="text-warning">Δ = −0.42 points over 10 years (p = 0.015).</strong> China started near-neutral in 2015 and has been slowly drifting toward negativity every crisis. If this trend continues at the same rate, China's tone will reach India's current level (−2.33) by approximately 2070. This is HX-004's core finding: China's drift is real and statistically confirmed.
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ╔══════════════════════════════════════════════╗
-     ║      VIEW: DATA SOURCES                       ║
-     ╚══════════════════════════════════════════════╝ -->
-<div class="view-page" id="view-datasources">
-  <h2 class="text-xl font-semibold mb-1">Data Sources</h2>
-  <p class="label-caps mb-6">GDELT Ingestion Pipeline & Global News Coverage</p>
-
-  <div class="grid-4">
-    <div class="card kpi-card">
-      <span class="label-caps">Total Records</span>
-      <span class="font-mono text-lg font-medium">35.52M</span>
-    </div>
-    <div class="card kpi-card">
-      <span class="label-caps">Parquet Files</span>
-      <span class="font-mono text-lg font-medium">22,000</span>
-    </div>
-    <div class="card kpi-card">
-      <span class="label-caps">Nepal Filtered</span>
-      <span class="font-mono text-lg font-medium">148,180</span>
-    </div>
-    <div class="card kpi-card">
-      <span class="label-caps">Source Uptime</span>
-      <div>
-        <span class="font-mono text-lg font-medium block">99.98%</span>
-        <span class="text-success font-mono text-xs">● Operational</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="card mb-6">
-    <div class="card-header">
-      <div class="flex items-center gap-2">
-        <span style="width: 3px; height: 16px; background: var(--accent-cyan); display: inline-block;"></span>
-        <span class="label-caps">Ingestion Pipeline Architecture</span>
-      </div>
-      <span class="text-cyan font-mono text-xs flex items-center gap-2">
-        <span class="material-symbols-outlined" style="font-size:14px;">sync</span> LIVE
-      </span>
-    </div>
-    <div class="card-body flex justify-between items-center" style="padding: 32px;">
-      
-      <div class="pipeline-box">
-        <div class="pipeline-icon"><span class="material-symbols-outlined text-muted">public</span></div>
-        <div class="font-semibold text-sm">Raw GDELT Stream</div>
-        <div class="font-mono text-xs text-dim">S3/Parquet</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      
-      <div class="pipeline-box">
-        <div class="pipeline-icon"><span class="material-symbols-outlined text-muted">description</span></div>
-        <div class="font-semibold text-sm">PySpark Parsing</div>
-        <div class="font-mono text-xs text-dim">Tone Extraction</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      
-      <div class="pipeline-box">
-        <div class="pipeline-icon"><span class="material-symbols-outlined text-muted">group</span></div>
-        <div class="font-semibold text-sm">Actor Extraction</div>
-        <div class="font-mono text-xs text-dim">India/China/Nepal</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      
-      <div class="pipeline-box">
-        <div class="pipeline-icon"><span class="material-symbols-outlined text-muted">storage</span></div>
-        <div class="font-semibold text-sm">Statistical Storage</div>
-        <div class="font-mono text-xs text-dim">8 CSV Outputs</div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-header">
-        <div class="flex items-center gap-2">
-          <span style="width: 3px; height: 16px; background: var(--accent-cyan); display: inline-block;"></span>
-          <span class="label-caps">Top Source Countries (96 Nations)</span>
-        </div>
-      </div>
-      <div class="card-body chart-container chart-md"><canvas id="chart-ds-countries"></canvas></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="flex items-center gap-2">
-          <span style="width: 3px; height: 16px; background: var(--accent-cyan); display: inline-block;"></span>
-          <span class="label-caps">Geographic Reach</span>
-        </div>
-      </div>
+      <div class="card-header"><h3 class="text-sm font-semibold">Test Console</h3></div>
       <div class="card-body flex flex-col gap-4">
-        
-        <div class="flex justify-between items-center p-3" style="border: 1px solid var(--border-dark);">
-          <div class="flex items-center gap-4">
-            <span class="font-mono text-xs text-muted" style="background: var(--bg-panel-hover); padding: 4px 8px;">SA</span>
-            <div><div class="text-sm">South Asia</div><div class="font-mono text-xs text-dim">High Density</div></div>
-          </div>
-          <span class="chip text-success">ACTIVE</span>
+        <span class="label-caps">Crisis Window</span>
+        <select id="hyp-crisis-select" class="input-field">
+          <option value="all">All Crises</option>
+          <option value="earthquake">2015 Earthquake</option>
+          <option value="blockade">2015 Blockade</option>
+          <option value="genz">2025 Gen-Z Protests</option>
+        </select>
+
+        <div class="flex flex-col gap-2">
+          <button class="crisis-btn" data-crisis="all" type="button">All Crises</button>
+          <button class="crisis-btn" data-crisis="earthquake" type="button">2015 Earthquake</button>
+          <button class="crisis-btn" data-crisis="blockade" type="button">2015 Blockade</button>
+          <button class="crisis-btn" data-crisis="genz" type="button">2025 Gen-Z Protests</button>
         </div>
-        
-        <div class="flex justify-between items-center p-3" style="border: 1px solid var(--border-dark);">
-          <div class="flex items-center gap-4">
-            <span class="font-mono text-xs text-muted" style="background: var(--bg-panel-hover); padding: 4px 8px;">EA</span>
-            <div><div class="text-sm">East Asia</div><div class="font-mono text-xs text-dim">Medium Density</div></div>
-          </div>
-          <span class="chip text-success">ACTIVE</span>
+
+        <button id="btn-run-hypothesis" class="btn-primary w-full">
+          <span class="material-symbols-outlined" id="hyp-spinner" style="display:none; animation: spin 1s linear infinite; font-size:16px;">progress_activity</span>
+          <span id="hyp-btn-text">RUN TEST</span>
+        </button>
+
+        <div id="hyp-result-panel" style="display:none;" class="console-box">
+          <span id="hyp-result-text"></span>
         </div>
-        
-        <div class="flex justify-between items-center p-3" style="border: 1px solid var(--border-dark);">
-          <div class="flex items-center gap-4">
-            <span class="font-mono text-xs text-muted" style="background: var(--bg-panel-hover); padding: 4px 8px;">GW</span>
-            <div><div class="text-sm">Global West</div><div class="font-mono text-xs text-dim">Sparse/Targeted</div></div>
-          </div>
-          <span class="chip text-warning">THROTTLED</span>
-        </div>
-        
       </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header" style="padding-bottom: 12px;">
+      <span class="label-caps">Statistical Results Matrix</span>
+    </div>
+    <div class="card-body p-0" style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>HYP_ID</th>
+            <th>Null Hypothesis (H&#8320;)</th>
+            <th style="text-align:right;">T-Stat</th>
+            <th style="text-align:right;">P-Value</th>
+            <th style="text-align:right;">Significance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-cyan font-bold">HX-001</td>
+            <td>&mu;(India) = &mu;(China) [Tone]</td>
+            <td style="text-align:right;">-13.95</td>
+            <td style="text-align:right;">0.0051</td>
+            <td style="text-align:right;"><span class="chip text-india">REJECTED</span></td>
+          </tr>
+          <tr>
+            <td class="text-cyan font-bold">HX-002</td>
+            <td>&mu;(India 2015) = &mu;(India 2025) [Stability]</td>
+            <td style="text-align:right;">-0.24</td>
+            <td style="text-align:right;">0.8094</td>
+            <td style="text-align:right;"><span class="chip text-dim">STABLE</span></td>
+          </tr>
+          <tr>
+            <td class="text-cyan font-bold">HX-003</td>
+            <td>&rho;(India, China) = 0 [Correlation]</td>
+            <td style="text-align:right;">-0.0235</td>
+            <td style="text-align:right;">0.824</td>
+            <td style="text-align:right;"><span class="chip text-success">CONFIRMED</span></td>
+          </tr>
+          <tr>
+            <td class="text-cyan font-bold">HX-004</td>
+            <td>China Drift = 0 [Secular Regression]</td>
+            <td style="text-align:right;">-2.90</td>
+            <td style="text-align:right;">0.015</td>
+            <td style="text-align:right;"><span class="chip text-india">REJECTED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="label-caps">Summary — how to read the engine</span></div>
+    <div class="card-body text-sm text-muted">
+      <strong class="text-main mb-2 block">How to read the Density Graph:</strong>
+      <p class="mb-4">These two bell curves show the distribution of all news articles. The peak of the curve is the
+        average tone. Because the red curve (India) sits further left (negative), Indian news was generally much more
+        negative than Chinese news (cyan, closer to 0). Click <strong>RUN TEST</strong> and the curves shift to the
+        exact data for the crisis you selected.</p>
+      <strong class="text-main mb-2 block">What are the "Metrics"?</strong>
+      <ul style="list-style-type: disc; padding-left: 20px; margin-bottom: 16px;">
+        <li><strong>Tone Divergence:</strong> how <em>positive or negative</em> the news is (the mood of coverage).</li>
+        <li><strong>Event Frequency:</strong> how <em>much</em> news is being published (the volume of articles).</li>
+      </ul>
+      <strong class="text-main mb-2 block">How to read the Statistical Matrix (HX-001 to HX-004):</strong>
+      <p class="mb-2">A <strong>Null Hypothesis (H&#8320;)</strong> is a default assumption. A <strong>P-Value</strong>
+        under 0.05 means the assumption is WRONG (Rejected). Here's what we tested:</p>
+      <ul style="list-style-type: disc; padding-left: 20px; margin-bottom: 16px;">
+        <li class="mb-1"><strong>HX-001 [Tone]:</strong> Assumption: India and China have the same average tone.
+          <span class="text-india font-bold">REJECTED</span>. (Fact: India is much more negative.)</li>
+        <li class="mb-1"><strong>HX-002 [Stability]:</strong> Assumption: India's tone changed between 2015 and 2025.
+          <span class="text-dim font-bold">STABLE</span>. (Fact: India's tone has stayed exactly the same over 10 years.)</li>
+        <li class="mb-1"><strong>HX-003 [Correlation]:</strong> Assumption: Indian and Chinese media do NOT copy each
+          other. <span class="text-success font-bold">CONFIRMED</span>. (Fact: when Indian news panics, Chinese news
+          doesn't react — they cover different things.)</li>
+        <li class="mb-1"><strong>HX-004 [Secular Regression]:</strong> Assumption: China's overall tone is not changing.
+          <span class="text-india font-bold">REJECTED</span>. (Fact: China is slowly drifting more critical over time.)</li>
+      </ul>
+      <p><strong class="text-main">In plain English:</strong> China's news about Nepal is consistently warmer than
+        India's; India's tone has been frozen for a decade while China's slowly sours; and day-to-day the two run
+        parallel, disconnected narratives about the same country.</p>
     </div>
   </div>
 </div>
 
-
 <!-- ╔══════════════════════════════════════════════╗
-     ║      VIEW: METHODOLOGY                       ║
+     ║   VIEW: NEIGHBOUR WATCH (regional lens)      ║
      ╚══════════════════════════════════════════════╝ -->
-<div class="view-page" id="view-methodology">
-  <div class="flex justify-between items-start mb-6">
-    <div>
-      <h2 class="text-xl font-semibold mb-1">Methodology (How it works)</h2>
-      <p class="text-sm text-muted">A beginner-friendly guide to how we collect data and calculate the results.</p>
+<div class="view-page" id="view-neighbours">
+  <p class="view-intro">Nepal is not the only neighbour in the crossfire. This lens compares how Indian and Chinese
+    media tone toward <strong>every country in their neighbourhood</strong> — Pakistan, Bangladesh, Sri Lanka,
+    Bhutan, Myanmar, Afghanistan, the Maldives and Nepal itself — so Nepal's numbers can be read in regional
+    context rather than in a vacuum.</p>
+
+  <div class="grid-4 mb-4" id="nb-kpis">
+    <div class="card kpi-card"><span class="label-caps">Neighbours Tracked</span><span class="kpi-value">8</span><span class="kpi-sub">South &amp; East Asia ring</span></div>
+    <div class="card kpi-card"><span class="label-caps">India Regional Mean</span><span class="kpi-value text-india" id="nb-kpi-india">—</span><span class="kpi-sub">Avg tone, all neighbours</span></div>
+    <div class="card kpi-card"><span class="label-caps">China Regional Mean</span><span class="kpi-value text-china" id="nb-kpi-china">—</span><span class="kpi-sub">Avg tone, all neighbours</span></div>
+    <div class="card kpi-card"><span class="label-caps">Warmest To</span><span class="kpi-value text-success" id="nb-kpi-best">—</span><span class="kpi-sub">Most positive coverage</span></div>
+  </div>
+
+  <div class="grid-2 mb-4" style="grid-template-columns: 3fr 2fr;">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Tone Toward Each Neighbour</h3>
+          <span class="text-xs text-dim">Average GDELT tone of coverage, last 12 months (DOC 2.0 timeline API).</span>
+        </div>
+        <div class="flex gap-4 font-mono text-xs">
+          <span class="text-india">● India</span><span class="text-china">● China</span>
+        </div>
+      </div>
+      <div class="card-body chart-container chart-lg"><canvas id="chart-nb-bars"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Attention Share</h3>
+          <span class="text-xs text-dim">How much of each neighbour's coverage each media system produces (radar).</span>
+        </div>
+      </div>
+      <div class="card-body chart-container chart-lg"><canvas id="chart-nb-radar"></canvas></div>
     </div>
   </div>
 
-  <div class="grid-2-1" style="grid-template-columns: 2fr 1fr;">
-    <!-- Left Column: Framework Sections -->
-    <div class="flex flex-col gap-4">
-      
-      <div class="card">
-        <div class="card-header" style="justify-content: flex-start; gap: 8px;">
-          <span class="material-symbols-outlined text-cyan" style="font-size:18px;">functions</span>
-          <span class="font-semibold">1. How We Measure Tone</span>
-        </div>
-        <div class="card-body">
-          <p class="text-sm text-muted mb-4">We use a simple statistical test to compare the "average mood" of news articles from India versus news articles from China to see if one is consistently more negative than the other.</p>
-          <div class="font-mono text-xs p-3 mb-4" style="background: var(--bg-deep); border: 1px solid var(--border-dark);">
-            We collect thousands of news articles.<br/>
-            Each article is rated from -100 (very negative) to +100 (very positive).<br/>
-            We average them out to find the overall tone.
-          </div>
-          <div class="grid-2" style="margin-bottom: 0;">
-            <div class="hyp-card">
-              <span class="label-caps mb-2">The Default Assumption</span>
-              <p class="text-sm text-muted">India and China talk about Nepal in the exact same way. (We prove this wrong).</p>
-            </div>
-            <div class="hyp-card">
-              <span class="label-caps mb-2">What We Actually Found</span>
-              <p class="text-sm text-muted">There is a massive, permanent difference in how the two countries report on Nepal.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header" style="justify-content: flex-start; gap: 8px;">
-          <span class="material-symbols-outlined text-cyan" style="font-size:18px;">tune</span>
-          <span class="font-semibold">2. How We Score the News</span>
-        </div>
-        <div class="card-body text-sm text-muted">
-          <p class="mb-4">We use a system called GDELT, which reads almost every news article published on the internet and assigns it a "Tone" score from -100 to +100.</p>
-          <div class="flex flex-col gap-3">
-            <div class="flex gap-4 p-3" style="border: 1px solid var(--border-dark);">
-              <span class="font-mono text-xs text-dim font-bold">01</span>
-              <div><span class="font-semibold text-main">Collect the Data</span><br/>We download the raw data for all news articles worldwide.</div>
-            </div>
-            <div class="flex gap-4 p-3" style="border: 1px solid var(--border-dark);">
-              <span class="font-mono text-xs text-dim font-bold">02</span>
-              <div><span class="font-semibold text-main">Filter for Nepal</span><br/>We throw away everything except articles where India or China are talking about Nepal.</div>
-            </div>
-            <div class="flex gap-4 p-3" style="border: 1px solid var(--border-dark);">
-              <span class="font-mono text-xs text-dim font-bold">03</span>
-              <div><span class="font-semibold text-main">Calculate the Average</span><br/>We group the articles by day, and calculate the average score to get a single daily number.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+  <div class="card">
+    <div class="card-header">
+      <span class="label-caps">Neighbour Matrix — tone &amp; volume</span>
+      <span class="text-xs text-dim" id="nb-meta">GDELT DOC 2.0 · timeline tone · cached build</span>
     </div>
-
-    <!-- Right Column: Matrix -->
-    <div class="flex flex-col gap-4">
-      
-      <div class="card">
-        <div class="card-header" style="justify-content: flex-start; gap: 8px;">
-          <span class="material-symbols-outlined text-cyan" style="font-size:18px;">ssid_chart</span>
-          <span class="text-sm font-semibold">Understanding P-Values</span>
-        </div>
-        <div class="card-body flex flex-col gap-4 font-mono text-xs">
-          <p class="text-sm text-muted mb-2" style="font-family: var(--font-sans);">A P-Value tells us if a result is real or just a random coincidence. A lower score is better.</p>
-          <div class="flex justify-between items-center border-b" style="border-color: var(--border-dark); padding-bottom: 12px;">
-            <div><span class="text-success font-bold block">DEFINITELY REAL</span><span class="text-dim">Very statistically significant.</span></div>
-            <span class="text-base font-bold">p &lt; 0.01</span>
-          </div>
-          
-          <div class="flex justify-between items-center border-b" style="border-color: var(--border-dark); padding-bottom: 12px;">
-            <div><span class="text-warning font-bold block">PROBABLY REAL</span><span class="text-dim">Statistically significant.</span></div>
-            <span class="text-base font-bold">p &lt; 0.05</span>
-          </div>
-          
-          <div class="flex justify-between items-center">
-            <div><span class="text-dim font-bold block">JUST RANDOM NOISE</span><span class="text-dim">Not significant. Coincidence.</span></div>
-            <span class="text-base font-bold">p ≥ 0.05</span>
-          </div>
-          
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header" style="justify-content: flex-start; gap: 8px;">
-          <span class="material-symbols-outlined text-cyan" style="font-size:18px;">import_contacts</span>
-          <span class="text-sm font-semibold">Core References</span>
-        </div>
-        <div class="card-body flex flex-col gap-3 font-mono text-xs text-muted">
-          <div class="p-3" style="background: var(--bg-deep); border: 1px solid var(--border-dark);">
-            <span class="text-main block mb-2">[1] Leetaru, K., & Schrodt, P. A. (2013).</span>
-            GDELT: Global Data on Events, Location, and Tone. ISA Annual Convention.
-          </div>
-          <div class="p-3" style="background: var(--bg-deep); border: 1px solid var(--border-dark);">
-            <span class="text-main block mb-2">[2] Welch, B. L. (1947).</span>
-            The generalization of 'Student's' problem when several different population variances are involved. Biometrika.
-          </div>
-        </div>
-      </div>
-
+    <div class="card-body p-0" style="overflow-x:auto;">
+      <table class="data-table" id="nb-matrix"></table>
+    </div>
+    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border);">
+      Colour encodes average tone (red = hostile, green = warm). Nepal's row is highlighted for comparison —
+      the question this view answers: <em>is Nepal treated worse, or better, than the rest of the neighbourhood?</em>
     </div>
   </div>
 </div>
 
+<!-- ╔══════════════════════════════════════════════╗
+     ║   VIEW: CROSS-REACTIONS (regional lens)      ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="view-page" id="view-crossreact">
+  <p class="view-intro">When China announces a loan, grant or railway for Nepal, how does <strong>Indian media</strong>
+    frame it — as development, or as encirclement? And symmetrically: when India deepens ties with Nepal, how does
+    <strong>Chinese media</strong> respond? This view tracks coverage that mentions <em>both</em> rivals and Nepal,
+    against each country's baseline Nepal coverage.</p>
+
+  <div class="grid-4 mb-4" id="cr-kpis">
+    <div class="card kpi-card"><span class="label-caps">India · re: China in Nepal</span><span class="kpi-value text-india" id="cr-kpi-in-china">—</span><span class="kpi-sub">Avg tone of cross-coverage</span></div>
+    <div class="card kpi-card"><span class="label-caps">India · baseline Nepal</span><span class="kpi-value text-muted" id="cr-kpi-in-base">—</span><span class="kpi-sub">Avg tone, all Nepal coverage</span></div>
+    <div class="card kpi-card"><span class="label-caps">China · re: India in Nepal</span><span class="kpi-value text-china" id="cr-kpi-cn-india">—</span><span class="kpi-sub">Avg tone of cross-coverage</span></div>
+    <div class="card kpi-card"><span class="label-caps">Threat-Framing Delta</span><span class="kpi-value text-warning" id="cr-kpi-delta">—</span><span class="kpi-sub">Cross-coverage minus baseline</span></div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <div>
+        <h3 class="text-sm font-semibold mb-1">Cross-Reaction Tone Over Time</h3>
+        <span class="text-xs text-dim">Solid = baseline Nepal coverage; dashed = coverage that also mentions the rival power.</span>
+      </div>
+    </div>
+    <div class="card-body chart-container chart-lg"><canvas id="chart-cr-lines"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="label-caps">Reading the signal</span></div>
+    <div class="card-body text-sm text-muted">
+      If cross-coverage runs <strong>systematically darker</strong> than baseline coverage, that is the statistical
+      fingerprint of threat-framing: the rival's presence itself is the negative trigger, regardless of what is
+      actually being built or given. A delta near zero would mean each media system reports the other's Nepal
+      activities much like any other Nepal news. This is exactly the pattern you describe seeing anecdotally —
+      India portraying Chinese aid as a strategic threat. The chart tests it against a year of GDELT data.
+    </div>
+  </div>
+</div>
 
 <!-- ╔══════════════════════════════════════════════╗
-     ║      VIEW: EXPORT / DATA EXPLORER             ║
+     ║   VIEW: NEPAL DIVIDEND (regional lens)       ║
      ╚══════════════════════════════════════════════╝ -->
-<div class="view-page" id="view-explorer">
-  <h2 class="text-xl font-semibold mb-1">Data Explorer & Export</h2>
-  <p class="text-sm text-muted mb-6">Inspect the underlying processed GDELT datasets.</p>
+<div class="view-page" id="view-dividend">
+  <p class="view-intro">What does Nepal actually receive from its two giant neighbours — and how is that giving
+    covered? This view combines GDELT attention/tone around aid, loans and investment with a curated ledger of
+    major documented projects and assistance lines.</p>
 
-  <div class="flex gap-4 mb-4">
-    <select id="select-dataset" class="input-field" style="width: auto;">
-      <option value="summary">Three-Way Incident Summary</option>
-      <option value="daily">Daily Sentiment & Spikes</option>
-      <option value="india_china">India vs China Daily (2025)</option>
-      <option value="countries">Source Countries (96 Nations)</option>
-      <option value="quadclass">QuadClass Comparison</option>
-      <option value="aligned">Aligned Timeline (T₀)</option>
-    </select>
-    <input id="search-rows" type="text" placeholder="Search rows..." class="input-field" style="width: 300px;"/>
+  <div class="grid-4 mb-4" id="dv-kpis">
+    <div class="card kpi-card"><span class="label-caps">India Aid Attention</span><span class="kpi-value text-india" id="dv-kpi-ind-vol">—</span><span class="kpi-sub">Coverage intensity, 12 mo</span></div>
+    <div class="card kpi-card"><span class="label-caps">China Aid Attention</span><span class="kpi-value text-china" id="dv-kpi-chn-vol">—</span><span class="kpi-sub">Coverage intensity, 12 mo</span></div>
+    <div class="card kpi-card"><span class="label-caps">India Aid Tone</span><span class="kpi-value text-india" id="dv-kpi-ind-tone">—</span><span class="kpi-sub">How aid is framed</span></div>
+    <div class="card kpi-card"><span class="label-caps">China Aid Tone</span><span class="kpi-value text-china" id="dv-kpi-chn-tone">—</span><span class="kpi-sub">How aid is framed</span></div>
   </div>
 
-  <div class="card" style="max-height: 600px; overflow-y: auto;">
-    <table class="data-table">
-      <thead id="exp-head"></thead>
-      <tbody id="exp-body"></tbody>
-    </table>
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Aid &amp; Investment Attention Over Time</h3>
+          <span class="text-xs text-dim">GDELT volume of coverage mentioning each donor's assistance to Nepal.</span>
+        </div>
+      </div>
+      <div class="card-body chart-container chart-md"><canvas id="chart-dv-volume"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="text-sm font-semibold mb-1">Framing of the Giving</h3>
+          <span class="text-xs text-dim">Average tone of aid/investment coverage per donor.</span>
+        </div>
+      </div>
+      <div class="card-body chart-container chart-md"><canvas id="chart-dv-tone"></canvas></div>
+    </div>
   </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="label-caps">Documented Engagement Ledger — major India/China assistance to Nepal</span>
+      <span class="text-xs text-dim">Curated from public records; sources listed</span>
+    </div>
+    <div class="card-body p-0" style="overflow-x:auto;">
+      <table class="data-table" id="dv-projects"></table>
+    </div>
+    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border);">
+      <strong>Caveat:</strong> GDELT measures <em>coverage</em>, not cash flows. The ledger above lists
+      publicly documented assistance and projects with sources; the charts measure how loudly and how warmly
+      each donor's giving is reported.
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║   VIEW: INSIGHT ENGINE (retrieval QA)        ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="view-page" id="view-insights">
+  <p class="view-intro">Ask the dataset a question. The engine builds an inverted index over every verified event,
+    finding, statistic and methodology note in NoiseFloor, retrieves the most relevant passages with TF-based
+    scoring, and assembles an answer with citations — fully client-side, no external AI service. It is our
+    retrieval-augmented answer layer: grounded only in this project's verified data.</p>
+
+  <div class="card mb-4">
+    <div class="card-header"><h3 class="text-sm font-semibold">Ask NoiseFloor</h3></div>
+    <div class="card-body">
+      <div class="flex gap-2 flex-wrap">
+        <input type="text" id="ins-query" class="input-field" placeholder="e.g. How negative was Indian media on Sept 9?"
+               style="flex:1; min-width:240px;" autocomplete="off"/>
+        <button id="ins-ask" class="btn-primary" type="button">ASK</button>
+      </div>
+      <div class="flex gap-2 flex-wrap mt-4" id="ins-suggestions" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <div id="ins-answer-area"></div>
 </div>
 
 <!-- ╔══════════════════════════════════════════════╗
      ║   VIEW: DATE EXPLORER (Task 1 + DSA Task 4)  ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page" id="view-dateexplorer">
-  <h2 class="text-xl font-semibold mb-1">Date Explorer</h2>
-  <p class="text-sm text-muted mb-6">Pick a single date or a range. Lookups run through a hand-built
+  <p class="view-intro">Pick a single date or a range. Lookups run through a hand-built
     <strong class="text-cyan">DateIndex</strong> — a sorted date array + inverted index queried by binary search,
     O(log n + k) per query instead of the naive O(n) scan (see backend/date_index.py).</p>
 
@@ -1089,24 +1088,24 @@
   <div class="card mb-4">
     <div class="card-body flex flex-wrap items-end gap-4">
       <div>
-        <label class="label-caps block mb-2">Mode</label>
+        <label class="label-caps block mb-2" for="dx-mode">Mode</label>
         <select id="dx-mode" class="input-field" style="width:auto;">
           <option value="range">Date Range</option>
           <option value="single">Single Date</option>
         </select>
       </div>
       <div id="dx-start-wrap">
-        <label class="label-caps block mb-2" id="dx-start-label">Start</label>
+        <label class="label-caps block mb-2" id="dx-start-label" for="dx-start">Start</label>
         <input type="date" id="dx-start" class="input-field"/>
       </div>
       <div id="dx-end-wrap">
-        <label class="label-caps block mb-2">End</label>
+        <label class="label-caps block mb-2" for="dx-end">End</label>
         <input type="date" id="dx-end" class="input-field"/>
       </div>
-      <button id="dx-search" class="btn-primary flex items-center gap-2" style="height:38px;">
+      <button id="dx-search" class="btn-primary">
         <span class="material-symbols-outlined" style="font-size:16px;">search</span> SEARCH
       </button>
-      <button id="dx-preset-spike" class="btn-secondary" style="height:38px;">Sept 2025 spike week</button>
+      <button id="dx-preset-spike" class="btn-secondary">Sept 2025 spike week</button>
       <span id="dx-complexity" class="text-xs text-muted ml-auto font-mono"></span>
     </div>
   </div>
@@ -1122,11 +1121,11 @@
   <div class="grid-2 mb-4" style="grid-template-columns: 3fr 2fr;">
     <div class="card">
       <div class="card-header"><span class="label-caps">Daily Tone &amp; Volume in Window</span></div>
-      <div class="card-body chart-container"><canvas id="chart-dx-window"></canvas></div>
+      <div class="card-body chart-container chart-lg"><canvas id="chart-dx-window"></canvas></div>
     </div>
     <div class="card">
       <div class="card-header"><span class="label-caps">India vs China Tone in Window</span></div>
-      <div class="card-body chart-container"><canvas id="chart-dx-ic"></canvas></div>
+      <div class="card-body chart-container chart-lg"><canvas id="chart-dx-ic"></canvas></div>
     </div>
   </div>
 
@@ -1141,20 +1140,20 @@
     </div>
   </div>
 
-  <div class="flex items-center gap-4 mb-4">
-    <button id="dx-headlines-btn" class="btn-primary" style="padding:6px 14px;font-size:11px;">
-      FETCH REAL HEADLINES FOR THIS WINDOW (LIVE GDELT)
+  <div class="flex items-center gap-4 mb-4 flex-wrap">
+    <button id="dx-headlines-btn" class="btn-primary">
+      <span class="material-symbols-outlined" style="font-size:16px;">rss_feed</span> FETCH HEADLINES FOR THIS WINDOW
     </button>
     <span class="text-xs text-muted">Pulls actual article titles via the GDELT DOC API for the selected days.</span>
   </div>
   <div class="card mb-4" id="dx-headlines-panel" style="display:none;">
     <div class="card-header"><span class="label-caps">Live Headlines (GDELT DOC API)</span></div>
-    <div class="card-body feed-list" id="dx-headlines-list"></div>
+    <div class="feed-list" id="dx-headlines-list"></div>
   </div>
 
   <!-- Global filter toggle -->
   <div class="card" style="border-left:3px solid var(--accent-cyan);">
-    <div class="card-body flex items-center gap-4">
+    <div class="card-body flex items-center gap-4 flex-wrap">
       <input type="checkbox" id="dx-global-filter" style="accent-color:var(--accent-cyan); width:16px;height:16px;"/>
       <label for="dx-global-filter" class="text-sm cursor-pointer">
         Apply this window as a <strong>global filter</strong> to the Dashboard &amp; Gen-Z timeline charts
@@ -1165,15 +1164,14 @@
 </div>
 
 <!-- ╔══════════════════════════════════════════════╗
-     ║   VIEW: TRENDS & ANOMALIES (Task 2 + b)      ║
+     ║   VIEW: TRENDS & ANOMALIES                   ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page" id="view-trends">
-  <h2 class="text-xl font-semibold mb-1">Trends &amp; Anomalies</h2>
-  <p class="text-sm text-muted mb-6">Beyond incident-level averages: daily/weekly tone per country, attention
-    (volume) vs sentiment (tone), all-neighbour comparison, spike-vs-tone correlation, and 2σ anomaly flags.</p>
+  <p class="view-intro">Beyond incident-level averages: daily/weekly tone per country, attention (volume) vs
+    sentiment (tone), all-neighbour comparison, spike-vs-tone correlation, and 2&sigma; anomaly flags.</p>
 
   <div class="card mb-4">
-    <div class="card-header" style="justify-content: space-between;">
+    <div class="card-header">
       <span class="label-caps">Tone Over Time — India vs China (2025)</span>
       <select id="tr-granularity" class="input-field" style="width:auto;padding:2px 8px;font-size:11px;">
         <option value="daily">Daily</option>
@@ -1181,9 +1179,9 @@
       </select>
     </div>
     <div class="card-body chart-container chart-lg"><canvas id="chart-tr-tonetime"></canvas></div>
-    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border-dark);">
+    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border);">
       <strong>Country-comparison mode:</strong> click legend items to isolate/diff countries;
-      red markers = anomaly days (&gt;2σ from that country's own rolling mean).
+      red markers = anomaly days (&gt;2&sigma; from that country's own rolling mean).
       Vertical annotations mark verified event-log dates and explain WHY coverage spiked.
     </div>
   </div>
@@ -1196,7 +1194,7 @@
     <div class="card">
       <div class="card-header"><span class="label-caps">Attention vs Sentiment — Volume × Tone scatter</span></div>
       <div class="card-body chart-container"><canvas id="chart-tr-scatter"></canvas></div>
-      <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border-dark);" id="tr-scatter-note"></div>
+      <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border);" id="tr-scatter-note"></div>
     </div>
   </div>
 
@@ -1205,7 +1203,7 @@
     <div class="card-body p-0" style="overflow-x:auto;">
       <table class="data-table" id="tr-heatmap"></table>
     </div>
-    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border-dark);">
+    <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border);">
       Rows sorted by coverage volume. Colour encodes average tone (red = hostile, green = positive).
       Neighbours are highlighted; Bhutan remains the only neighbour with a positive tone (+1.64).
     </div>
@@ -1215,38 +1213,256 @@
     <div class="card-header"><span class="label-caps">Anomaly Log — |z| &gt; 2 vs own 7-day rolling mean</span></div>
     <div class="card-body p-0" style="overflow-x:auto;">
       <table class="data-table">
-        <thead><tr><th>Series</th><th>Date</th><th>Tone</th><th>Rolling μ</th><th>z-score</th></tr></thead>
+        <thead><tr><th>Series</th><th>Date</th><th>Tone</th><th>Rolling &mu;</th><th>z-score</th></tr></thead>
         <tbody id="tr-anomaly-body"></tbody>
       </table>
     </div>
   </div>
 
-  <div class="flex items-center gap-4 mt-4">
-    <button id="tr-export-csv" class="btn-primary" style="padding:6px 14px;font-size:11px;">EXPORT CURRENT DATA (CSV)</button>
-    <button id="tr-print-report" class="btn-secondary" style="padding:6px 14px;font-size:11px;">PRINT / PDF SNAPSHOT</button>
+  <div class="flex items-center gap-4 mt-4 flex-wrap">
+    <button id="tr-export-csv" class="btn-primary">EXPORT CURRENT DATA (CSV)</button>
+    <button id="tr-print-report" class="btn-secondary">PRINT / PDF SNAPSHOT</button>
     <span class="text-xs text-muted">CSV downloads the daily dataset shown here; Print opens a clean snapshot of the whole dashboard.</span>
   </div>
 </div>
 
 <!-- ╔══════════════════════════════════════════════╗
-     ║   VIEW: LIVE FEED (user request #3 & #4)     ║
+     ║   VIEW: LIVE FEED                            ║
      ║   Populated dynamically by feed.js           ║
      ╚══════════════════════════════════════════════╝ -->
 <div class="view-page" id="view-livefeed">
   <h2 class="text-xl font-semibold mb-1">Live News Feed</h2>
   <p class="text-sm text-muted mb-2">Real headlines indexed by GDELT's global news index, grouped by publishing
-    country and language — including Hindi and Simplified Chinese native-language coverage. Auto-refreshes
+    country and language — including Hindi and Simplified Chinese native-language coverage. Each stream carries an
+    automated tone reading and a 3-point briefing generated on-device from the retrieved headlines. Auto-refreshes
     every 15 minutes.</p>
-  <p class="text-xs text-muted mb-4">Historical reverse-direction statistics (Nepal's tone toward India/China over
-    the full crisis windows) are produced by <span class="font-mono">notebook_addendum.ipynb</span> in Colab —
-    this live view covers the "now" layer.</p>
+  <p class="text-xs text-dim mb-4">Historical reverse-direction statistics (Nepal's tone toward India/China over the
+    full crisis windows) are produced by <span class="font-mono">notebook_addendum.ipynb</span> in Colab — this live
+    view covers the "now" layer.</p>
+</div>
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║      VIEW: METHODOLOGY                       ║
+     ╚══════════════════════════════════════════════╝ -->
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║      VIEW: DATA SOURCES                      ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="view-page" id="view-datasources">
+  <p class="view-intro">Everything on this dashboard is computed from the GDELT Project's public event database —
+    a global index of worldwide news media, machine-parsed into actors, actions and tone.</p>
+
+  <div class="grid-4 mb-4">
+    <div class="card kpi-card">
+      <span class="label-caps">Total Records</span>
+      <span class="kpi-value">35.52M</span>
+      <span class="kpi-sub">Raw events ingested</span>
+    </div>
+    <div class="card kpi-card">
+      <span class="label-caps">Parquet Files</span>
+      <span class="kpi-value">22,000</span>
+      <span class="kpi-sub">Columnar source partitions</span>
+    </div>
+    <div class="card kpi-card">
+      <span class="label-caps">Nepal Filtered</span>
+      <span class="kpi-value">148,180</span>
+      <span class="kpi-sub">Events in our analysis set</span>
+    </div>
+    <div class="card kpi-card">
+      <span class="label-caps">Source Uptime</span>
+      <span class="kpi-value">99.98%</span>
+      <span class="kpi-sub text-success font-mono text-xs">&#9679; Operational</span>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <span class="label-caps">Ingestion Pipeline Architecture</span>
+      <span class="text-cyan font-mono text-xs flex items-center gap-2">
+        <span class="material-symbols-outlined" style="font-size:14px;">sync</span> LIVE
+      </span>
+    </div>
+    <div class="card-body flex justify-between items-center flex-wrap gap-4" style="padding:32px;">
+      <div class="pipeline-box">
+        <div class="pipeline-icon"><span class="material-symbols-outlined text-muted">public</span></div>
+        <div class="font-semibold text-sm">Raw GDELT Stream</div>
+        <div class="font-mono text-xs text-dim">S3/Parquet</div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-box">
+        <div class="pipeline-icon"><span class="material-symbols-outlined text-muted">description</span></div>
+        <div class="font-semibold text-sm">PySpark Parsing</div>
+        <div class="font-mono text-xs text-dim">Tone Extraction</div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-box">
+        <div class="pipeline-icon"><span class="material-symbols-outlined text-muted">group</span></div>
+        <div class="font-semibold text-sm">Actor Extraction</div>
+        <div class="font-mono text-xs text-dim">India/China/Nepal</div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-box">
+        <div class="pipeline-icon"><span class="material-symbols-outlined text-muted">storage</span></div>
+        <div class="font-semibold text-sm">Statistical Storage</div>
+        <div class="font-mono text-xs text-dim">8 CSV Outputs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="label-caps">Top Source Countries (96 Nations)</span></div>
+      <div class="card-body chart-container chart-md"><canvas id="chart-ds-countries"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="label-caps">Geographic Reach</span></div>
+      <div class="card-body flex flex-col gap-4">
+        <div class="flex justify-between items-center p-3" style="border:1px solid var(--border); border-radius:8px;">
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-xs text-muted" style="background:var(--bg-inset); padding:4px 8px; border-radius:4px;">SA</span>
+            <div><div class="text-sm">South Asia</div><div class="font-mono text-xs text-dim">High Density</div></div>
+          </div>
+          <span class="chip text-success">ACTIVE</span>
+        </div>
+        <div class="flex justify-between items-center p-3" style="border:1px solid var(--border); border-radius:8px;">
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-xs text-muted" style="background:var(--bg-inset); padding:4px 8px; border-radius:4px;">EA</span>
+            <div><div class="text-sm">East Asia</div><div class="font-mono text-xs text-dim">Medium Density</div></div>
+          </div>
+          <span class="chip text-success">ACTIVE</span>
+        </div>
+        <div class="flex justify-between items-center p-3" style="border:1px solid var(--border); border-radius:8px;">
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-xs text-muted" style="background:var(--bg-inset); padding:4px 8px; border-radius:4px;">GW</span>
+            <div><div class="text-sm">Global West</div><div class="font-mono text-xs text-dim">Sparse/Targeted</div></div>
+          </div>
+          <span class="chip text-warning">THROTTLED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║   VIEW: DATA EXPLORER / EXPORT               ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="view-page" id="view-explorer">
+  <p class="view-intro">Inspect the underlying processed GDELT datasets. Search any column, then export what you see.</p>
+
+  <div class="flex gap-4 mb-4 flex-wrap">
+    <select id="select-dataset" class="input-field" style="width:auto;">
+      <option value="summary">Three-Way Incident Summary</option>
+      <option value="daily">Daily Sentiment &amp; Spikes</option>
+      <option value="india_china">India vs China Daily (2025)</option>
+      <option value="countries">Source Countries (96 Nations)</option>
+      <option value="quadclass">QuadClass Comparison</option>
+      <option value="aligned">Aligned Timeline (T&#8320;)</option>
+    </select>
+    <input id="search-rows" type="text" placeholder="Search rows..." class="input-field" style="width:300px;"/>
+  </div>
+
+  <div class="card" style="max-height:600px; overflow-y:auto;">
+    <table class="data-table">
+      <thead id="exp-head"></thead>
+      <tbody id="exp-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="view-page" id="view-methodology">
+  <p class="view-intro">A beginner-friendly guide to how we collect data and calculate the results — plus the
+    caveats that keep us honest.</p>
+
+  <div class="grid-2" style="grid-template-columns: 3fr 2fr;">
+    <div class="card">
+      <div class="card-header"><span class="label-caps">Pipeline, step by step</span></div>
+      <div class="card-body">
+        <div class="method-step">
+          <div class="method-num">01</div>
+          <div>
+            <h4 class="text-sm font-semibold mb-1">Extraction</h4>
+            <p class="text-xs text-muted">22,000 GDELT parquet files (35.5M events worldwide) are filtered down to
+              every event mentioning Nepal. This leaves 148,180 relevant records.</p>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="method-num">02</div>
+          <div>
+            <h4 class="text-sm font-semibold mb-1">Actor Attribution</h4>
+            <p class="text-xs text-muted">Each record's source country is resolved via GDELT's Actor fields and domain
+              geolocation, separating Indian media from Chinese media from the other 94 nations.</p>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="method-num">03</div>
+          <div>
+            <h4 class="text-sm font-semibold mb-1">Tone Aggregation</h4>
+            <p class="text-xs text-muted">GDELT scores each article's emotional tone from −100 to +100 using NLP
+              sentiment analysis. We average these daily per actor, producing a comparable "mood index".</p>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="method-num">04</div>
+          <div>
+            <h4 class="text-sm font-semibold mb-1">Hypothesis Testing</h4>
+            <p class="text-xs text-muted">Paired t-tests across crisis windows test whether the India–China tone gap is
+              real (HX-001), stable (HX-002), uncorrelated (HX-003) and drifting (HX-004).</p>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="method-num">05</div>
+          <div>
+            <h4 class="text-sm font-semibold mb-1">Spike &amp; Anomaly Detection</h4>
+            <p class="text-xs text-muted">Volume spikes are flagged against a 30-day baseline (Sept 9 = 30.99×), and
+              tone anomalies are flagged when |z| &gt; 2 versus each country's own 7-day rolling mean.</p>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="method-num">06</div>
+          <div>
+            <h4 class="text-sm font-semibold mb-1">Data Structures (DSA layer)</h4>
+            <p class="text-xs text-muted">The Date Explorer runs on a hand-built DateIndex: sorted date array +
+              inverted map, queried by binary search in O(log n + k). The Insight Engine adds a TF-scored inverted
+              index over verified findings for retrieval-style Q&amp;A.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="caveats-box">
+        <span class="label-caps block mb-2">Caveats &amp; limitations</span>
+        <ul class="text-xs text-muted" style="list-style-type: disc; padding-left: 18px; display:flex; flex-direction:column; gap:8px;">
+          <li>GDELT's tone score is machine-generated; sarcasm and irony can fool it.</li>
+          <li>Event counts measure <em>attention</em>, not importance.</li>
+          <li>Only three crises were sampled — n = 3 for the paired t-test, so p-values are indicative rather than definitive.</li>
+          <li>Crisis windows are aligned by trigger day; different event durations can bias averages.</li>
+          <li>The live feed depends on the GDELT DOC API, which occasionally rate-limits (HTTP 429).</li>
+        </ul>
+      </div>
+
+      <div class="caveats-box">
+        <span class="label-caps block mb-2">Reproducibility</span>
+        <ul class="text-xs text-muted" style="list-style-type: disc; padding-left: 18px; display:flex; flex-direction:column; gap:8px;">
+          <li><span class="font-mono">backend/build_data.py</span> rebuilds every dataset + asserts locked statistics before shipping.</li>
+          <li><span class="font-mono">backend/tests/</span> contains pytest suites for the pipeline and the DateIndex.</li>
+          <li><span class="font-mono">notebook_addendum.ipynb</span> reproduces the reverse-direction stats in Colab.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
 </main>
 
-  <script src="data_bundle.js"></script>
-  <script src="date_index.js"></script>
-  <script src="feed.js"></script>
-  <script src="app.js"></script>
+<script src="data_bundle.js"></script>
+<script src="date_index.js"></script>
+<script src="summarize.js"></script>
+<script src="feed.js"></script>
+<script src="globe.js"></script>
+<script src="geo_views.js"></script>
+<script src="insights.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
