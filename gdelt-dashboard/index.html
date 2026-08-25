@@ -657,116 +657,30 @@
   <div class="card" style="border-left: 3px solid var(--accent-india);">
     <div class="card-header" style="justify-content: flex-start; gap: 8px;">
       <span class="material-symbols-outlined text-india">compare_arrows</span>
-      <span class="label-caps text-india">Finding #3 — Top 10 Days: Biggest India vs China Tone Gap</span>
+      <span class="label-caps text-india">Finding #3 — Top Gap Days: Biggest India vs China Daily Tone Gaps</span>
+     <div class="card-header-sub text-xs text-dim" style="margin-top:4px;">Computed live from
+       <span class="font-mono">india_china_comparison.csv</span> — days where both countries published.
+       Context shown only when a verified event exists for that date.</div>
     </div>
     <div class="card-body p-0" style="overflow-x: auto;">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Date (2025)</th>
+            <th>Date</th>
             <th style="text-align:right;">India Tone</th>
             <th style="text-align:right;">China Tone</th>
             <th style="text-align:right;">Gap</th>
-            <th class="text-india">Why India?</th>
-            <th class="text-china">Why China?</th>
+            <th>Context (verified events only)</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td class="font-mono">Sep 08</td>
-            <td style="text-align:right;" class="text-india font-bold">-7.41</td>
-            <td style="text-align:right;" class="text-china">0.00</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">7.41</span><br><span class="text-xs text-muted">IND Neg</span></td>
-            <td class="text-xs text-muted">Day before the spike — early protest violence already in Indian headlines</td>
-            <td class="text-xs text-muted">Neutral/no significant Nepal coverage on this day</td>
-          </tr>
-          <tr style="background-color: rgba(255,255,255,0.03);">
-            <td class="font-mono">Sep 09</td>
-            <td style="text-align:right;" class="text-india font-bold">-5.96</td>
-            <td style="text-align:right;" class="text-china font-bold">-4.72</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">1.24</span><br><span class="text-xs text-muted">Both Neg</span></td>
-            <td class="text-xs text-muted">Massive spike in events as Gen-Z protests intensify</td>
-            <td class="text-xs text-muted">Acknowledged protests as unrest grew near their border</td>
-          </tr>
-          <tr style="background-color: rgba(255,255,255,0.03);">
-            <td class="font-mono">Sep 10</td>
-            <td style="text-align:right;" class="text-india font-bold">-4.35</td>
-            <td style="text-align:right;" class="text-china font-bold">-5.62</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">1.27</span><br><span class="text-xs text-muted">Both Neg</span></td>
-            <td class="text-xs text-muted">Continued coverage of the political crisis and unrest</td>
-            <td class="text-xs text-muted">Strongly criticized the instability on their border</td>
-          </tr>
-          <tr style="background-color: rgba(255,255,255,0.03);">
-            <td class="font-mono">Sep 11</td>
-            <td style="text-align:right;" class="text-india font-bold">-3.72</td>
-            <td style="text-align:right;" class="text-china font-bold">-3.31</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">0.41</span><br><span class="text-xs text-muted">Both Neg</span></td>
-            <td class="text-xs text-muted">Reporting on negotiations to end the crisis</td>
-            <td class="text-xs text-muted">Focused on the economic impact of the unrest</td>
-          </tr>
-          <tr style="background-color: rgba(255,255,255,0.05); border-left: 2px solid var(--accent-success);">
-            <td class="font-mono">Sep 12</td>
-            <td style="text-align:right;" class="text-india font-bold">-3.55</td>
-            <td style="text-align:right;" class="text-china font-bold">-3.77</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">0.22</span><br><span class="text-xs text-muted">Both Neg</span></td>
-            <td class="text-xs text-muted">Interim government formed; tone starts to stabilize</td>
-            <td class="text-xs text-muted">Interim government formed; cautious reporting</td>
-          </tr>
-
-          <tr>
-            <td class="font-mono">Sep 16</td>
-            <td style="text-align:right;" class="text-india font-bold">-10.25</td>
-            <td style="text-align:right;" class="text-china">-1.19</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">9.06</span><br><span class="text-xs text-muted">IND Neg</span></td>
-            <td class="text-xs text-muted">Peak protest week — heavy coverage of police crackdowns</td>
-            <td class="text-xs text-muted">Framed largely as Nepal's internal governance issue</td>
-          </tr>
-          <tr>
-            <td class="font-mono">Sep 20</td>
-            <td style="text-align:right;" class="text-india font-bold">-2.98</td>
-            <td style="text-align:right;" class="text-china font-bold">+11.62</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">14.60</span><br><span class="text-xs text-muted">IND Neg, CHN Pos</span></td>
-            <td class="text-xs text-muted">Still covering ongoing political instability</td>
-            <td class="text-xs text-muted">Publishing articles on China-Nepal trade deals</td>
-          </tr>
-          <tr>
-            <td class="font-mono">Sep 27</td>
-            <td style="text-align:right;" class="text-india font-bold">-12.40</td>
-            <td style="text-align:right;" class="text-china font-bold">+3.50</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">15.90</span><br><span class="text-xs text-muted">IND Neg, CHN Pos</span></td>
-            <td class="text-xs text-muted">Reporting violent clashes in Kathmandu</td>
-            <td class="text-xs text-muted">Covering a new infrastructure cooperation announcement</td>
-          </tr>
-          <tr>
-            <td class="font-mono">Oct 27</td>
-            <td style="text-align:right;" class="text-india font-bold">-1.41</td>
-            <td style="text-align:right;" class="text-china font-bold">+8.50</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">9.91</span><br><span class="text-xs text-muted">IND Neg, CHN Pos</span></td>
-            <td class="text-xs text-muted">Reporting on economic challenges and border issues</td>
-            <td class="text-xs text-muted">Promoting a major Chinese investment project</td>
-          </tr>
-          <tr>
-            <td class="font-mono">Nov 03</td>
-            <td style="text-align:right;" class="text-india font-bold">-7.00</td>
-            <td style="text-align:right;" class="text-china font-bold">+5.58</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">12.58</span><br><span class="text-xs text-muted">IND Neg, CHN Pos</span></td>
-            <td class="text-xs text-muted">Covering Nepal government reshuffles</td>
-            <td class="text-xs text-muted">Highlighting Belt &amp; Road cooperation progress</td>
-          </tr>
-          <tr>
-            <td class="font-mono">Nov 13</td>
-            <td style="text-align:right;" class="text-india font-bold">+1.91</td>
-            <td style="text-align:right;" class="text-china font-bold">-6.36</td>
-            <td style="text-align:right;"><span class="font-bold text-warning">8.27</span><br><span class="text-xs text-muted">IND Pos, CHN Neg</span></td>
-            <td class="text-xs text-muted">Covered new connectivity agreement positively</td>
-            <td class="text-xs text-muted">Reporting on delayed repayments on Chinese loans</td>
-          </tr>
+        <tbody id="kf-gap-body">
+          <tr><td colspan="5" class="text-muted text-xs">Computing from dataset…</td></tr>
         </tbody>
       </table>
     </div>
     <div class="card-body text-xs text-muted" style="border-top:1px solid var(--border); padding-top:12px;">
       <strong class="text-main">What this proves:</strong> On some days the gap between India and China's coverage
-      reaches <strong>15.9 tone points</strong>. Sometimes India is extremely negative while China is positive —
+      reaches <strong><span id="kf-gap-max">…</span> tone points</strong>. Sometimes India is extremely negative while China is positive —
       and sometimes the reverse. This directly proves HX-003: they are watching completely different Nepals.
     </div>
   </div>

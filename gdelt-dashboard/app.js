@@ -325,8 +325,11 @@ document.addEventListener("DOMContentLoaded", () => {
     volumePanel('gz-volume-panel', '2025 Gen-Z Protest');
 
     // Daily event-volume bars around Sept 2025 (spike days highlighted red)
-    let dailyRows = DATA.daily_sentiment.filter(r => r.event_date >= '2025-08-25' && r.event_date <= '2025-10-05');
-    if (state.dateFilter) dailyRows = IDX.daily.rangeRows(state.dateFilter.start, state.dateFilter.end);
+    // Window is exactly what the card title promises (late Aug → Sept 30 2025);
+    // previously it silently ran to Oct 5, which read as "wrong dates".
+    const GZ_VOL_START = '2025-08-25', GZ_VOL_END = '2025-09-30';
+    let dailyRows = DATA.daily_sentiment.filter(r => r.event_date >= GZ_VOL_START && r.event_date <= GZ_VOL_END);
+    if (state.dateFilter) dailyRows = IDX.daily.rangeRows(state.dateFilter.start, state.dateFilter.end).filter(r => r.event_date >= '2025-08-25' && r.event_date <= '2025-10-05');
     const isSpike = r => r.is_spike === true || r.is_spike === 'True';
 
     new Chart($('chart-genz-waveform'), {
@@ -362,8 +365,10 @@ document.addEventListener("DOMContentLoaded", () => {
       } }]
     });
 
-    // India vs China daily tone lines (respects global filter via DateIndex)
-    let icRows = DATA.india_china_daily.filter(r => r.event_date >= '2025-08-25');
+    // India vs China daily tone lines (respects global filter via DateIndex).
+    // Capped at Sept 30 to match the card title ("Sept 2025") — previously this
+    // chart silently plotted through mid-November, reading as wrong dates.
+    let icRows = DATA.india_china_daily.filter(r => r.event_date >= '2025-08-25' && r.event_date <= '2025-09-30');
     if (state.dateFilter) icRows = IDX.ic.rangeRows(state.dateFilter.start, state.dateFilter.end);
     const logsIn = state.dateFilter
       ? EVENT_LOG.filter(e => e.date >= state.dateFilter.start && e.date <= state.dateFilter.end)
@@ -424,6 +429,48 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     });
+
+    buildGapTable();
+  }
+
+  // Finding #3 — top India-vs-China daily tone gaps, computed live from
+  // DATA.india_china_daily. Dates/values always match the dataset by
+  // construction; context is shown ONLY from the verified event log.
+  function buildGapTable() {
+    const tbody = $('kf-gap-body');
+    if (!tbody || !DATA.india_china_daily) return;
+
+    const days = DATA.india_china_daily
+      .filter(r => r.india_tone != null && r.china_tone != null)
+      .map(r => ({ date: r.event_date, ind: r.india_tone, chn: r.china_tone, gap: r.china_tone - r.india_tone }))
+      .sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap))
+      .slice(0, 10);
+
+    const maxAbs = days.length ? Math.max(...days.map(d => Math.abs(d.gap))) : null;
+    if ($('kf-gap-max') && maxAbs != null) $('kf-gap-max').textContent = maxAbs.toFixed(1);
+
+    const sign = v => v > 0 ? '+' : '';
+    const dirLabel = d =>
+      d.ind < 0 && d.chn >= 0 ? 'IND Neg · CHN Pos' :
+      d.ind >= 0 && d.chn < 0 ? 'IND Pos · CHN Neg' :
+      d.ind < 0 && d.chn < 0 ? 'Both Neg' : 'Both Pos';
+
+    tbody.innerHTML = days.length ? days.map(d => {
+      const ev = EVENT_LOG.find(e => e.date === d.date);
+      const ctx = ev
+        ? `<span class="text-xs"><strong class="text-main">${esc(ev.title)}</strong><br><span class="text-muted">${esc(ev.description)}</span></span>`
+        : '<span class="text-xs text-dim">— no verified event logged for this date —</span>';
+      const evMark = ev ? ' style="border-left:2px solid var(--accent-success);"' : '';
+      return `<tr${evMark}>
+        <td class="font-mono">${esc(d.date)}</td>
+        <td style="text-align:right;" class="${d.ind < 0 ? 'text-india' : 'text-success'} font-bold">${sign(d.ind)}${fmt(d.ind)}</td>
+        <td style="text-align:right;" class="${d.chn < 0 ? 'text-china' : 'text-success'} font-bold">${sign(d.chn)}${fmt(d.chn)}</td>
+        <td style="text-align:right;"><span class="font-bold text-warning">${Math.abs(d.gap).toFixed(2)}</span><br>
+          <span class="text-xs text-muted">${dirLabel(d)}</span></td>
+        <td style="max-width:280px;">${ctx}</td>
+      </tr>`;
+    }).join('')
+    : '<tr><td colspan="5" class="text-muted text-xs">No paired India/China daily data available.</td></tr>';
   }
 
   // ─── VIEW: HYPOTHESIS ENGINE ────────────────────────────────────────────
@@ -670,7 +717,11 @@ document.addEventListener("DOMContentLoaded", () => {
           <td class="font-mono">${ev.date}</td>
           <td class="text-xs font-bold" style="max-width:220px;">${ev.title}</td>
           <td class="text-xs text-muted">${ev.description}</td>
-          <td class="text-xs"><a href="${ev.source_url}" target="_blank" rel="noopener" class="text-cyan">${ev.source}</a></td>
+          <td class="text-xs">${
+            ev.source_url
+              ? `<a href="${esc(ev.source_url)}" target="_blank" rel="noopener" class="text-cyan">${esc(ev.source)}</a>`
+              : esc(ev.source) + ' <span class="text-dim">(no link)</span>'
+          }</td>
           <td class="text-xs ${ev.confidence === 'verified' ? 'text-success' : 'text-warning'}">${ev.confidence}</td>
         </tr>`).join('')
       : '<tr><td colspan="5" class="text-muted text-xs">No tagged events in this window.</td></tr>';
