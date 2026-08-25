@@ -30,7 +30,8 @@ CACHE = os.path.join(OUT_DIR, "_cellcache.json")
 
 API = "https://api.gdeltproject.org/api/v2/doc/doc"
 TIMESPAN = "1y"
-GAP = 9                          # seconds between requests (GDELT asks >=5s)
+GAP = 20                         # seconds between requests (raised: GDELT rate-limits hard)
+
 BACKOFF = (45, 90, 180, 300)     # escalating waits on HTTP 429
 
 REPORTERS = {"india": "sourcecountry:IN", "china": "sourcecountry:CN"}
