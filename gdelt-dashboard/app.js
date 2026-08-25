@@ -183,22 +183,45 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Per-country DAILY tone doesn't exist for the 2015 windows (the extract
+    // only supports it from late 2024), so we draw the honest combination:
+    //   • solid amber line  = daily average tone of ALL coverage in the window
+    //   • dashed red/cyan   = each country's WINDOW MEAN from incidents_summary
+    // This keeps both actors visible without inventing daily series.
+    const indMean = sumRow(period, 'India');
+    const chnMean = sumRow(period, 'China');
+    const flat = v => Array(rows.length).fill(v);
+
     new Chart(el, {
       type: 'line',
       $nfRows: rows,
       data: {
         labels: rows.map(d => d.days_since_start),
-        datasets: [{
-          label: 'Avg tone (all coverage)',
-          data: rows.map(d => d.avg_tone),
-          borderColor: P.china,
-          backgroundColor: rgba(P.china, 0.08),
-          fill: true, borderWidth: 2, tension: 0.35, pointRadius: 1, pointHoverRadius: 5
-        }]
+        datasets: [
+          {
+            label: 'Daily tone · all coverage',
+            data: rows.map(d => d.avg_tone),
+            borderColor: P.warn,
+            backgroundColor: rgba(P.warn, 0.07),
+            fill: true, borderWidth: 2, tension: 0.35, pointRadius: 1, pointHoverRadius: 5
+          },
+          ...(indMean ? [{
+            label: `India window mean (${indMean.avg_tone})`,
+            data: flat(indMean.avg_tone),
+            borderColor: P.india, borderWidth: 1.5, borderDash: [6, 4],
+            pointRadius: 0, fill: false
+          }] : []),
+          ...(chnMean ? [{
+            label: `China window mean (${chnMean.avg_tone})`,
+            data: flat(chnMean.avg_tone),
+            borderColor: P.china, borderWidth: 1.5, borderDash: [2, 3],
+            pointRadius: 0, fill: false
+          }] : [])
+        ]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: tooltipDefaults },
+        plugins: { legend: { labels: { boxWidth: 12, usePointStyle: false } }, tooltip: tooltipDefaults },
         scales: {
           y: { grid, title: { display: true, text: 'Avg tone', color: P.dim } },
           x: { grid: gridX, title: { display: true, text: 'Days from T\u2080', color: P.dim } }
@@ -288,33 +311,53 @@ document.addEventListener("DOMContentLoaded", () => {
   function initEarthquake() {
     alignedTrajectory('chart-eq-aligned', '2015 Earthquake');
     volumePanel('eq-volume-panel', '2015 Earthquake');
+    buildQuadCompare(document.getElementById('chart-eq-quad'));
+    eventStrip('eq-event-strip', '2015-01-01', '2015-12-31');
   }
 
-  // ─── VIEW: BLOCKADE ─────────────────────────────────────────────────────
+  // Shared QuadClass mix comparison (2015 window vs 2025 window)
+  function buildQuadCompare(ctxQuad) {
+    if (!ctxQuad || !DATA.quadclass) return;
+    const pick = (year, cls) =>
+      (DATA.quadclass.find(q => q.period === year && q.QuadClass === cls) || {}).percentage ?? 0;
+    new Chart(ctxQuad, {
+      type: 'bar',
+      data: {
+        labels: ['V.Coop', 'M.Coop', 'V.Conf', 'M.Conf'],
+        datasets: [
+          { label: '2015 crisis', data: [1, 2, 3, 4].map(c => pick(2015, c)), backgroundColor: P.warn, borderRadius: 4, barPercentage: 0.55 },
+          { label: '2025 protests', data: [1, 2, 3, 4].map(c => pick(2025, c)), backgroundColor: P.india, borderRadius: 4, barPercentage: 0.55 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { boxWidth: 10, usePointStyle: true } }, tooltip: tooltipDefaults },
+        scales: { y: { grid, title: { display: true, text: '% of events', color: P.dim } }, x: { grid: { display: false } } }
+      }
+    });
+  }
+
+  // Verified event-log strip: horizontal cards for every logged event in range
+  function eventStrip(elId, start, end) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const hits = EVENT_LOG.filter(e => e.date >= start && e.date <= end && e.confidence === 'verified');
+    el.innerHTML = hits.length
+      ? `<div class="flex gap-3" style="overflow-x:auto; padding-bottom:6px;">${hits.map(ev => `
+          <div class="card kpi-card" style="min-width:230px; border-left:3px solid var(--accent-success); margin:0;">
+            <span class="font-mono text-xs text-success">${esc(ev.date)}</span>
+            <span class="text-xs font-semibold text-main" style="margin-top:2px;">${esc(ev.title)}</span>
+            <span class="text-xs text-muted" style="margin-top:4px;">${esc(ev.description)}</span>
+            ${ev.source_url ? `<a class="text-xs text-cyan" style="margin-top:6px;" href="${esc(ev.source_url)}" target="_blank" rel="noopener">${esc(ev.source)} ↗</a>` : ''}
+          </div>`).join('')}</div>`
+      : '<p class="text-xs text-muted">No verified events logged in this window.</p>';
+  }
+
   function initBlockade() {
     alignedTrajectory('chart-bl-aligned', '2015 Blockade');
     volumePanel('bl-volume-panel', '2015 Blockade');
 
-    const ctxQuad = document.getElementById('chart-bl-quad');
-    if (ctxQuad && DATA.quadclass) {
-      const pick = (year, cls) =>
-        (DATA.quadclass.find(q => q.period === year && q.QuadClass === cls) || {}).percentage ?? 0;
-      new Chart(ctxQuad, {
-        type: 'bar',
-        data: {
-          labels: ['V.Coop', 'M.Coop', 'V.Conf', 'M.Conf'],
-          datasets: [
-            { label: '2015 Blockade', data: [1, 2, 3, 4].map(c => pick(2015, c)), backgroundColor: P.warn, borderRadius: 4, barPercentage: 0.55 },
-            { label: '2025 Protests', data: [1, 2, 3, 4].map(c => pick(2025, c)), backgroundColor: P.india, borderRadius: 4, barPercentage: 0.55 }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { labels: { boxWidth: 10, usePointStyle: true } }, tooltip: tooltipDefaults },
-          scales: { y: { grid, title: { display: true, text: '% of events', color: P.dim } }, x: { grid: { display: false } } }
-        }
-      });
-    }
+    buildQuadCompare(document.getElementById('chart-bl-quad'));
   }
 
   // ─── VIEW: GEN-Z ────────────────────────────────────────────────────────

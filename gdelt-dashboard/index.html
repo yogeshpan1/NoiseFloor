@@ -319,10 +319,7 @@
       <div class="card-header">
         <div>
           <h3 class="text-sm font-semibold mb-1">Event-Aligned Tone Trajectory</h3>
-          <span class="text-xs text-dim">Average media tone centred on the trigger day (T&#8320;).</span>
-        </div>
-        <div class="flex gap-4 font-mono text-xs">
-          <span class="text-china">● All sources</span>
+          <span class="text-xs text-dim">Daily all-coverage tone centred on the trigger day (T&#8320;), with each country's window mean.</span>
         </div>
       </div>
       <div class="card-body chart-container chart-lg"><canvas id="chart-eq-aligned"></canvas></div>
@@ -339,20 +336,45 @@
     </div>
   </div>
 
+  <div class="card mb-4">
+    <div class="card-header">
+      <div>
+        <h3 class="text-sm font-semibold mb-1">Event Behaviour Mix — 2015 vs 2025</h3>
+        <span class="text-xs text-dim">Share of events by CAMEO QuadClass during each crisis year.</span>
+      </div>
+    </div>
+    <div class="card-body chart-container chart-md"><canvas id="chart-eq-quad"></canvas></div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <div>
+        <h3 class="text-sm font-semibold mb-1">Verified Event Timeline — 2015</h3>
+        <span class="text-xs text-dim">Every manually verified event in the log for this year, with sources.</span>
+      </div>
+    </div>
+    <div class="card-body" id="eq-event-strip"></div>
+  </div>
+
   <div class="card">
     <div class="card-header"><span class="label-caps">How to read this</span></div>
     <div class="card-body text-sm text-muted">
-      <strong class="text-main">What's in the graph?</strong> The trajectory chart centres every day on the
-      earthquake itself (T&#8320;), so the two countries' reactions can be compared like-for-like.
+      <strong class="text-main">What's in the trajectory chart?</strong> Every day is centred on the earthquake
+      itself (T&#8320;), so reactions can be compared like-for-like across crises.
       <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
-        <li><strong>Red line (India):</strong> drops sharply at T&#8320; and stays deep in negative territory —
-          coverage focused on chaos, blocked aid and criticism of Nepal's response.</li>
-        <li><strong>Cyan line (China):</strong> dips only mildly and recovers within days — rescue teams,
-          aid deliveries and diplomatic warmth dominated.</li>
+        <li><strong>Amber line:</strong> the daily average tone of <em>all</em> Nepal coverage that day —
+          it plunges at T&#8320; and stays negative through the relief phase.</li>
+        <li><strong>Dashed red line:</strong> India's average tone across the whole window (&minus;2.26).</li>
+        <li><strong>Dashed cyan line:</strong> China's window average (&minus;0.29). The vertical distance between
+          the two dashed lines <em>is</em> the +1.98 tone gap.</li>
+        <li><strong>Why no daily red/cyan lines?</strong> Our extract only supports per-country daily tone from
+          late 2024 onward — for 2015 we show window means instead of inventing daily series. The Gen-Z page
+          has true daily lines because that data exists.</li>
       </ul>
-      <strong class="text-main">Statistical finding:</strong> the +1.98 tone gap in this window is the second
-      largest of the three crises, and India's volume (1,277 events) trailed China's (1,849) — more coverage,
-      yet warmer, from Beijing.
+      <strong class="text-main">QuadClass bars:</strong> what <em>kind</em> of events dominated — cooperation
+      (aid, grants) vs conflict (criticism, force) — in 2015 vs 2025.
+      <strong class="text-main">Statistical finding:</strong> India's volume (1,277 events) trailed China's
+      (1,849) — more coverage, yet warmer, from Beijing.
     </div>
   </div>
 </div>
@@ -394,10 +416,7 @@
       <div class="card-header">
         <div>
           <h3 class="text-sm font-semibold mb-1">Event-Aligned Tone Trajectory</h3>
-          <span class="text-xs text-dim">Average media tone centred on the trigger day (T&#8320;).</span>
-        </div>
-        <div class="flex gap-4 font-mono text-xs">
-          <span class="text-china">● All sources</span>
+          <span class="text-xs text-dim">Daily all-coverage tone centred on the trigger day (T&#8320;), with each country's window mean.</span>
         </div>
       </div>
       <div class="card-body chart-container chart-lg"><canvas id="chart-bl-aligned"></canvas></div>
@@ -430,16 +449,19 @@
   <div class="card">
     <div class="card-header"><span class="label-caps">How to read this</span></div>
     <div class="card-body text-sm text-muted">
-      <strong class="text-main">Left chart (QuadClass bars):</strong> what <em>kind</em> of events were recorded.
+      <strong class="text-main">QuadClass bars:</strong> what <em>kind</em> of events were recorded.
       <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
         <li><strong>V.Coop (Verbal Cooperation):</strong> talking nicely, agreeing, praising.</li>
         <li><strong>M.Coop (Material Cooperation):</strong> doing nice things — aid, grants, deals.</li>
         <li><strong>V.Conf (Verbal Conflict):</strong> arguing, complaining, criticising in public.</li>
         <li><strong>M.Conf (Material Conflict):</strong> physical negative actions — the blockade itself, riots, force.</li>
       </ul>
-      <strong class="text-main">Right chart (trajectory):</strong> both lines sit below zero for the whole crisis —
-      the blockade was hostile and painful — but India's line runs visibly lower than China's throughout.
-      The 2015→2025 QuadClass shift shows material conflict rising as cooperation recedes.
+      <strong class="text-main">Trajectory chart:</strong> the amber line is the daily tone of all Nepal coverage
+      in the window — it sits below zero for essentially the whole crisis. The dashed red line is India's window
+      mean (&minus;2.43) and the dashed cyan line China's (&minus;0.45): India runs visibly lower throughout, and
+      that vertical distance is the +1.99 gap. Per-country daily lines aren't available for 2015 (extract
+      limitation) — window means are shown instead of invented series.
+      The 2015&rarr;2025 QuadClass shift shows material conflict rising as cooperation recedes.
     </div>
   </div>
 </div>
@@ -482,10 +504,7 @@
       <div class="card-header">
         <div>
           <h3 class="text-sm font-semibold mb-1">Event-Aligned Tone Trajectory</h3>
-          <span class="text-xs text-dim">Average media tone centred on the trigger day (T&#8320;).</span>
-        </div>
-        <div class="flex gap-4 font-mono text-xs">
-          <span class="text-china">● All sources</span>
+          <span class="text-xs text-dim">Daily all-coverage tone centred on the trigger day (T&#8320;), with each country's window mean.</span>
         </div>
       </div>
       <div class="card-body chart-container chart-lg"><canvas id="chart-gz-aligned"></canvas></div>
@@ -527,9 +546,11 @@
       <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
         <li><strong>Volume bars:</strong> the Sept 9 spike (30.99× baseline) marks the protest peak and Oli's
           resignation; the Sept 12 marker marks the interim government's swearing-in.</li>
-        <li><strong>Red line (India):</strong> highly volatile and deeply negative — 24,503 events in the
-          window, framing the unrest as collapse and instability.</li>
-        <li><strong>Cyan line (China):</strong> stays much closer to neutral — treated as an internal
+        <li><strong>Amber line (top chart):</strong> daily tone of all coverage centred on the protest trigger;
+          dashed lines mark each country's window mean. In the bottom chart the <strong>red line (India)</strong> is
+          highly volatile and deeply negative — India logged 568 events in the window, framing the unrest as
+          collapse and instability.</li>
+        <li><strong>Cyan line (China):</strong> stays much closer to neutral (368 events) — treated as an internal
           governance matter, with emphasis on citizen safety and continuity.</li>
       </ul>
       <strong class="text-main">Statistical finding:</strong> the Pearson correlation between India's and
