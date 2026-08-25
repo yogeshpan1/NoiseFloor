@@ -186,9 +186,19 @@ document.addEventListener("DOMContentLoaded", () => {
   function alignedTrajectory(canvasId, period) {
     const el = document.getElementById(canvasId);
     if (!el || !DATA.timeline_aligned) return;
-    const rows = DATA.timeline_aligned
+    let rows = DATA.timeline_aligned
       .filter(d => d.period === period)
       .sort((a, b) => a.days_since_start - b.days_since_start);
+
+    // Fallback: timeline_aligned only carries the Blockade + Gen-Z windows,
+    // but timeline_all_three ALSO holds real daily rows for 2015 Earthquake —
+    // previously this chart showed a "data predates extract" dead-end for a
+    // window whose daily data we actually have.
+    if (!rows.length && DATA.timeline_all_three) {
+      rows = DATA.timeline_all_three
+        .filter(d => d.period === period)
+        .sort((a, b) => a.days_since_start - b.days_since_start);
+    }
 
     if (!rows.length) {
       const box = el.closest('.chart-container') || el.parentElement;
@@ -631,8 +641,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const w = welch(p);
       const sig = w.p < 0.05;
-      resultPanel.style.display = 'block';
-      resultText.innerHTML =
+      if (resultPanel) resultPanel.style.display = 'block';
+      if (resultText) resultText.innerHTML =
         `Crisis: <strong>${p.label}</strong><br>` +
         `India Mean Tone: <span style="color:${P.india}">${e.indMu.toFixed(2)}</span>` +
         ` &nbsp;·&nbsp; China Mean Tone: <span style="color:${P.china}">${e.chnMu.toFixed(2)}</span><br>` +
@@ -655,6 +665,18 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     bindShift('hyp-india-shift', 'hyp-india-val', 'ind');
     bindShift('hyp-china-shift', 'hyp-china-val', 'chn');
+
+    // Test Console elements — these MUST be declared here. They were previously
+    // referenced without declaration, so under "use strict" the very first
+    // `if (crisisSelect)` threw a ReferenceError that aborted initHypothesis()
+    // midway: the sliders (bound just above) kept working but the crisis
+    // dropdown, quick-select buttons and RUN TEST button never got listeners.
+    const crisisSelect = $('hyp-crisis-select');
+    const runBtn = $('btn-run-hypothesis');
+    const spinner = $('hyp-spinner');
+    const btnText = $('hyp-btn-text');
+    const resultPanel = $('hyp-result-panel');
+    const resultText = $('hyp-result-text');
 
     if (crisisSelect) crisisSelect.addEventListener('change', () => {
       key = crisisSelect.value;
@@ -1129,6 +1151,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tbl = $('tr-heatmap');
     if (!tbl || !DATA.neighbors) return;
     const rows = [...DATA.neighbors]
+      .filter(c => c.code !== 'NPL')   // drop "Nepal (self)" — user wants only foreign publishers here
       .sort((a, b) => b.event_count - a.event_count)
       .slice(0, 40); // top 40 publishers; the full list stays in Data Explorer
 
