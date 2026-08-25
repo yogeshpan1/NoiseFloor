@@ -31,8 +31,9 @@ CACHE = os.path.join(OUT_DIR, "_cellcache.json")
 API = "https://api.gdeltproject.org/api/v2/doc/doc"
 TIMESPAN = "1y"
 GAP = 20                         # seconds between requests (raised: GDELT rate-limits hard)
-
-BACKOFF = (45, 90, 180, 300)     # escalating waits on HTTP 429
+BACKOFF = (60, 120, 300, 600)    # escalating waits on HTTP 429
+COOLDOWN = 900                   # whole-build cool-down after a cell exhausts BACKOFF
+MAX_ROUNDS = 24                  # give up only after ~6h of cool-down cycles
 
 REPORTERS = {"india": "sourcecountry:IN", "china": "sourcecountry:CN"}
 
@@ -198,7 +199,20 @@ def main():
         os.remove(CACHE)
     load_cache()
 
-    data = build()
+    data = None
+    for attempt in range(1, MAX_ROUNDS + 1):
+        try:
+            data = build()
+            break
+        except urllib.error.HTTPError as e:
+            print(f"[round {attempt}/{MAX_ROUNDS}] cell exhausted backoffs "
+                  f"(HTTP {e.code}); cooling down {COOLDOWN}s — cache preserved, "
+                  f"will resume automatically", flush=True)
+            time.sleep(COOLDOWN)
+    if data is None:
+        raise SystemExit(f"gave up after {MAX_ROUNDS} cool-down rounds; "
+                         "cache preserved — rerun to resume")
+
     os.makedirs(OUT_DIR, exist_ok=True)
     tmp = OUT + ".tmp"
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
