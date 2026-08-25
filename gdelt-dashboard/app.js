@@ -89,6 +89,19 @@ document.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => initChartsForView('dashboard'), 50);
   chartsInitialized['dashboard'] = true;
 
+  // Deep-link: index.html?view=<id> (or window.__NF_VIEW injected by the QA
+  // harness) activates that view on load. Deferred so the dashboard init
+  // above is scheduled first and nav handlers are already bound.
+  setTimeout(() => {
+    try {
+      const wanted = window.__NF_VIEW ||
+        new URLSearchParams(location.search).get('view');
+      if (!wanted) return;
+      const target = document.querySelector('.nav-link[data-view="' + wanted + '"]');
+      if (target && !target.classList.contains('active')) target.click();
+    } catch (e) { /* malformed query — keep default view */ }
+  }, 60);
+
   function initChartsForView(viewId) {
     if (viewId === 'dashboard') initDashboard();
     if (viewId === 'earthquake') initEarthquake();
@@ -716,10 +729,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ─── VIEW: EXPLORER ─────────────────────────────────────────────────────
+  let explorerRows = [], explorerCols = [];
+
   function initExplorer() {
     renderExplorer();
     document.getElementById('select-dataset')?.addEventListener('change', renderExplorer);
     document.getElementById('search-rows')?.addEventListener('input', renderExplorer);
+    document.getElementById('exp-export')?.addEventListener('click', exportExplorerCsv);
+  }
+
+  // CSV export of exactly what the table shows (all filtered rows, not just
+  // the first 100 rendered). Client-side Blob download — no server needed.
+  function exportExplorerCsv() {
+    if (!explorerRows.length) return;
+    const cell = v => {
+      const s = String(v ?? '');
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const csv = [explorerCols.join(',')]
+      .concat(explorerRows.map(r => explorerCols.map(c => cell(r[c])).join(',')))
+      .join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });  // BOM → Excel opens UTF-8
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'noisefloor-' + (document.getElementById('select-dataset')?.value || 'data') + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
   }
 
   function renderExplorer() {
@@ -738,13 +775,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let rows = map[key] || [];
     if (q) rows = rows.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(q)));
 
-    const cols = rows.length ? Object.keys(rows[0]) : [];
+    explorerRows = rows;
+    explorerCols = rows.length ? Object.keys(rows[0]) : [];
+    const count = document.getElementById('exp-count');
+    if (count) count.textContent = rows.length
+      ? `${rows.length.toLocaleString()} rows${q ? ' (filtered)' : ''} — showing first ${Math.min(100, rows.length)}`
+      : '0 rows';
+
     const head = document.getElementById('exp-head');
     const body = document.getElementById('exp-body');
     if (!head || !body) return;
 
-    head.innerHTML = `<tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
-    body.innerHTML = rows.slice(0, 100).map(r => `<tr>${cols.map(c => `<td>${r[c] ?? '—'}</td>`).join('')}</tr>`).join('');
+    head.innerHTML = `<tr>${explorerCols.map(c => `<th>${c}</th>`).join('')}</tr>`;
+    body.innerHTML = rows.slice(0, 100).map(r => `<tr>${explorerCols.map(c => `<td>${r[c] ?? '—'}</td>`).join('')}</tr>`).join('');
   }
 
   // ─── VIEW: DATE EXPLORER (Task 1 + DSA Task 4) ──────────────────────────

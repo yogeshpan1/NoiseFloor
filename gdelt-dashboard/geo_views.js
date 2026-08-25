@@ -260,6 +260,54 @@
                   x: { grid: { display: false } } }
       }
     });
+
+    initDvSim(dv);
+  }
+
+  // ─── Nepal Dividend · scenario simulator ───────────────────────────────────
+  // Proportional what-if: scale each donor's aid attention up/down and watch
+  // the projected coverage share rebalance. Illustrative, clearly labelled.
+  function initDvSim(dv) {
+    const sInd = document.getElementById('dv-sim-ind');
+    const sChn = document.getElementById('dv-sim-chn');
+    if (!sInd || !sChn || sInd.dataset.bound) return;
+    sInd.dataset.bound = '1';
+
+    const baseInd = Math.max(0.1, (dv && dv.india && dv.india.attention_avg) || 1);
+    const baseChn = Math.max(0.1, (dv && dv.china && dv.china.attention_avg) || 1);
+    const baseShare = baseInd / (baseInd + baseChn);
+
+    const update = () => {
+      const pInd = +sInd.value, pChn = +sChn.value;
+      const projInd = baseInd * (1 + pInd / 100);
+      const projChn = baseChn * (1 + pChn / 100);
+      const shareInd = projInd / (projInd + projChn);
+
+      document.getElementById('dv-sim-ind-val').textContent = (pInd >= 0 ? '+' : '') + pInd + '%';
+      document.getElementById('dv-sim-chn-val').textContent = (pChn >= 0 ? '+' : '') + pChn + '%';
+      document.getElementById('dv-sim-share').textContent =
+        `India ${(shareInd * 100).toFixed(0)}% · China ${((1 - shareInd) * 100).toFixed(0)}%`;
+      document.getElementById('dv-sim-bar-ind').style.width = (shareInd * 100).toFixed(1) + '%';
+      document.getElementById('dv-sim-bar-chn').style.width = ((1 - shareInd) * 100).toFixed(1) + '%';
+
+      const shift = (shareInd - baseShare) * 100;
+      let verdict;
+      if (Math.abs(shift) < 2) {
+        verdict = 'With these surges the coverage balance stays essentially where it is today — the narrative contest remains ' +
+          (baseShare > 0.5 ? 'India-led' : 'China-led') + ' in volume terms.';
+      } else if (shift > 0) {
+        verdict = `A ${Math.abs(shift).toFixed(0)}-point swing toward Indian coverage. Watch the tone chart: volume leadership ` +
+          `only helps the narrative if the framing stays warm — India's aid tone is ${dv && dv.india && dv.india.tone_avg != null ? dv.india.tone_avg.toFixed(2) : 'n/a'}.`;
+      } else {
+        verdict = `A ${Math.abs(shift).toFixed(0)}-point swing toward Chinese coverage. Volume leadership ` +
+          `only helps the narrative if the framing stays warm — China's aid tone is ${dv && dv.china && dv.china.tone_avg != null ? dv.china.tone_avg.toFixed(2) : 'n/a'}.`;
+      }
+      document.getElementById('dv-sim-verdict').textContent = verdict;
+    };
+
+    sInd.addEventListener('input', update);
+    sChn.addEventListener('input', update);
+    update();
   }
 
   window.NFGeoViews = {

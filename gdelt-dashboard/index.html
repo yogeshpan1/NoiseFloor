@@ -362,14 +362,12 @@
       <strong class="text-main">What's in the trajectory chart?</strong> Every day is centred on the earthquake
       itself (T&#8320;), so reactions can be compared like-for-like across crises.
       <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
-        <li><strong>Amber line:</strong> the daily average tone of <em>all</em> Nepal coverage that day —
-          it plunges at T&#8320; and stays negative through the relief phase.</li>
         <li><strong>Dashed red line:</strong> India's average tone across the whole window (&minus;2.26).</li>
         <li><strong>Dashed cyan line:</strong> China's window average (&minus;0.29). The vertical distance between
           the two dashed lines <em>is</em> the +1.98 tone gap.</li>
-        <li><strong>Why no daily red/cyan lines?</strong> Our extract only supports per-country daily tone from
-          late 2024 onward — for 2015 we show window means instead of inventing daily series. The Gen-Z page
-          has true daily lines because that data exists.</li>
+        <li><strong>Why no day-by-day curve here?</strong> Our daily extract begins 2015-09-09, so the April
+          earthquake window has no daily series — the window means above and the coverage panel carry the
+          comparison instead of an invented curve. The Blockade and Gen-Z pages plot the full daily line.</li>
       </ul>
       <strong class="text-main">QuadClass bars:</strong> what <em>kind</em> of events dominated — cooperation
       (aid, grants) vs conflict (criticism, force) — in 2015 vs 2025.
@@ -911,6 +909,22 @@
       the question this view answers: <em>is Nepal treated worse, or better, than the rest of the neighbourhood?</em>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-header"><span class="label-caps">How to read this</span></div>
+    <div class="card-body text-sm text-muted">
+      <strong class="text-main">Tone Toward Each Neighbour (grouped bars):</strong> each country on the x-axis gets a
+      red bar (Indian media's average tone toward it) and a cyan bar (Chinese media's average tone toward it).
+      Higher = warmer coverage. The gap between the two bars at each country is the story: a large gap means the
+      two media systems treat that neighbour very differently.<br><br>
+      <strong class="text-main">Attention Share (radar):</strong> each axis is a neighbour; the shaded shape shows what
+      fraction of that neighbour's total coverage each media system produces. A point far out on an axis means that
+      media system <em>dominates</em> the coverage of that country — it is about attention, not tone.<br><br>
+      <strong class="text-main">Neighbour Matrix:</strong> every row is a neighbour; volume = how much coverage it
+      attracts, tone = how warm that coverage is. Find Nepal's highlighted row and compare it upward and downward:
+      worse tone than most neighbours means Nepal is a "conflict frame" country for that media system.
+    </div>
+  </div>
 </div>
 
 <!-- ╔══════════════════════════════════════════════╗
@@ -947,6 +961,21 @@
       actually being built or given. A delta near zero would mean each media system reports the other's Nepal
       activities much like any other Nepal news. This is exactly the pattern you describe seeing anecdotally —
       India portraying Chinese aid as a strategic threat. The chart tests it against a year of GDELT data.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="label-caps">How to read this</span></div>
+    <div class="card-body text-sm text-muted">
+      <strong class="text-main">KPI cards:</strong> the first card is Indian media's average tone <em>only when a
+      China–Nepal story is in the same article</em>; the second is Indian media's tone toward Nepal in general. The
+      third mirrors this for Chinese media covering India–Nepal stories. The fourth card — the
+      <strong>Threat-Framing Delta</strong> — is simply cross-coverage tone minus baseline tone. Negative delta =
+      the rival's involvement makes coverage darker (threat frame); zero = no effect; positive = brighter.<br><br>
+      <strong class="text-main">Cross-Reaction Tone Over Time:</strong> solid lines are each country's baseline Nepal
+      coverage; dashed lines are the same country's coverage that also mentions the rival. Watch whether a dashed
+      line runs <em>below</em> its solid twin and how far — a persistent gap is the threat-framing signal; a single
+      dip is just one news cycle.
     </div>
   </div>
 </div>
@@ -987,6 +1016,45 @@
     </div>
   </div>
 
+  <div class="card mb-4">
+    <div class="card-header">
+      <div>
+        <h3 class="text-sm font-semibold mb-1">Scenario Simulator — what if giving surges?</h3>
+        <span class="text-xs text-dim">Drag the sliders to project how a change in each donor's aid activity would
+          reshape the <em>coverage</em> balance. Illustrative model on the 12-month GDELT baselines — not a forecast.</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="grid-2" style="grid-template-columns:1fr 1fr; gap:24px;">
+        <div>
+          <div class="flex justify-between items-baseline mb-2">
+            <span class="label-caps text-india">India aid surge</span>
+            <span class="font-mono text-sm" id="dv-sim-ind-val">+0%</span>
+          </div>
+          <input type="range" id="dv-sim-ind" min="-50" max="150" value="0" step="5" style="width:100%;"/>
+        </div>
+        <div>
+          <div class="flex justify-between items-baseline mb-2">
+            <span class="label-caps text-china">China aid surge</span>
+            <span class="font-mono text-sm" id="dv-sim-chn-val">+0%</span>
+          </div>
+          <input type="range" id="dv-sim-chn" min="-50" max="150" value="0" step="5" style="width:100%;"/>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="flex justify-between items-baseline mb-1">
+          <span class="label-caps">Projected coverage share</span>
+          <span class="font-mono text-xs text-dim" id="dv-sim-share">— / —</span>
+        </div>
+        <div style="height:14px; background:var(--bg-inset); border-radius:7px; overflow:hidden; display:flex;">
+          <div id="dv-sim-bar-ind" style="height:100%; width:50%; background:var(--accent-india); transition:width .25s;"></div>
+          <div id="dv-sim-bar-chn" style="height:100%; width:50%; background:var(--accent-china); transition:width .25s;"></div>
+        </div>
+      </div>
+      <p class="text-sm text-muted mt-4 mb-0" id="dv-sim-verdict">Move a slider to see the projected coverage balance.</p>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-header">
       <span class="label-caps">Documented Engagement Ledger — major India/China assistance to Nepal</span>
@@ -999,6 +1067,27 @@
       <strong>Caveat:</strong> GDELT measures <em>coverage</em>, not cash flows. The ledger above lists
       publicly documented assistance and projects with sources; the charts measure how loudly and how warmly
       each donor's giving is reported.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="label-caps">How to read this</span></div>
+    <div class="card-body text-sm text-muted">
+      <strong class="text-main">KPI cards:</strong> "attention" is how intensely each donor's aid to Nepal is covered
+      (volume of articles), "tone" is how warmly that coverage reads. High attention + negative tone = a donor whose
+      giving is loudly <em>debated</em> rather than welcomed.<br><br>
+      <strong class="text-main">Aid &amp; Investment Attention Over Time:</strong> two lines, one per donor; height =
+      coverage volume in that period. Spikes usually track real-world announcements (loans, airport openings,
+      railway agreements) — cross-check them against the ledger below.<br><br>
+      <strong class="text-main">Framing of the Giving:</strong> one bar per donor; the taller (less negative) bar is
+      the donor whose giving gets the friendlier press. Compare the bars against the crisis tones elsewhere on the
+      dashboard — aid coverage is typically warmer than conflict coverage for both.<br><br>
+      <strong class="text-main">Scenario Simulator:</strong> drag either slider to scale that donor's aid activity up
+      or down; the split bar re-shares total projected coverage between the two donors and the verdict line explains
+      the narrative implication. It is a simple proportional model on the 12-month baselines — useful for intuition,
+      not prediction.<br><br>
+      <strong class="text-main">Engagement Ledger:</strong> the documented reality check — every major project or
+      assistance line with its source. Charts measure coverage; the ledger lists what was actually promised or built.
     </div>
   </div>
 </div>
@@ -1322,6 +1411,10 @@
       <option value="aligned">Aligned Timeline (T&#8320;)</option>
     </select>
     <input id="search-rows" type="text" placeholder="Search rows..." class="input-field" style="width:300px;"/>
+    <button id="exp-export" class="btn-primary" type="button">
+      <span class="material-symbols-outlined" style="font-size:16px;">download</span> EXPORT CSV
+    </button>
+    <span class="text-xs text-muted" id="exp-count"></span>
   </div>
 
   <div class="card" style="max-height:600px; overflow-y:auto;">

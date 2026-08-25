@@ -119,6 +119,42 @@
     'How large is the dataset?'
   ];
 
+  // ─── Conversational layer ──────────────────────────────────────────────────
+  // Makes the retrieval engine behave like a chat partner: greeting/thanks
+  // handling, "tell me more" pagination through the last ranking, and
+  // clickable follow-up chips after every grounded answer.
+  const FOLLOWUP_RE = /^(more|tell me more|go on|continue|explain more|more details?|elaborate|next)\b/i;
+  const GREET_RE = /^(hi|hii+|hello|hey|namaste|namaskar|good\s*(morning|afternoon|evening))\b/i;
+  const THANKS_RE = /^(thank(s| you)|dhanyabad|thx|great|awesome|nice work)\b/i;
+  let lastRanking = [];   // full ranked hit list for the last real question
+  let lastShown = 0;      // passages already revealed to the reader
+  let lastTopic = '';     // the question that produced lastRanking
+
+  const chip = (label, ask) =>
+    `<button class="suggestion-chip" type="button" data-ask="${esc(ask)}" style="margin:8px 6px 0 0;">${esc(label)}</button>`;
+
+  const suggestionChips = (n = 3) => SUGGESTIONS.slice(0, n).map(s => chip(s, s)).join('');
+
+  function bindChips(row) {
+    row.querySelectorAll('[data-ask]').forEach(b =>
+      b.addEventListener('click', () => {
+        const inp = document.getElementById('ins-query');
+        if (inp) inp.value = b.dataset.ask;
+        answer(b.dataset.ask);
+      }));
+  }
+
+  // Next-unseen passages from the current ranking, offered as follow-ups.
+  function followChips(fromIdx) {
+    return lastRanking.slice(fromIdx).slice(0, 2)
+      .map(h => chip('→ ' + h.passage.title, 'Tell me more about: ' + h.passage.title))
+      .join('');
+  }
+
+  const passageHtml = h =>
+    `<p class="text-sm text-muted" style="margin-top:10px;">${esc(h.passage.text)}</p>
+     <div class="insight-source">SOURCE · ${esc(h.passage.title)} · relevance ${(h.score * 100).toFixed(0)}</div>`;
+
   function answer(query) {
     const area = document.getElementById('ins-answer-area');
     if (!area || !INDEX || !query.trim()) return;
@@ -138,18 +174,52 @@
     area.scrollTop = area.scrollHeight;
 
     setTimeout(() => {
-      const hits = retrieve(q, CORPUS);
-      if (!hits.length) {
-        botRow.innerHTML = `<div class="nf-chat-bubble"><span class="text-warning font-mono text-xs">NO MATCH</span>
-          <p class="text-sm text-muted mt-2" style="margin-top:8px;">Nothing in the verified NoiseFloor corpus matches that. Try one of the suggested questions.</p></div>`;
+      let html = '';
+
+      if (GREET_RE.test(q)) {
+        html = `<div class="nf-chat-bubble">
+          <p class="text-sm text-muted" style="margin:0;">Namaste 🙏 I'm grounded strictly in the verified NoiseFloor
+          dataset — three crisis windows, four hypothesis tests, 96 source countries and every logged event date.
+          What would you like to know?</p>${suggestionChips()}</div>`;
+
+      } else if (THANKS_RE.test(q)) {
+        html = `<div class="nf-chat-bubble">
+          <p class="text-sm text-muted" style="margin:0;">Anytime. Dig deeper on the last topic, or start a new thread:</p>
+          ${lastRanking.length ? followChips(0) || suggestionChips() : suggestionChips()}</div>`;
+
+      } else if (FOLLOWUP_RE.test(q) && lastRanking.length) {
+        const next = lastRanking.slice(lastShown, lastShown + 3);
+        if (next.length) {
+          lastShown += next.length;
+          html = `<div class="nf-chat-bubble">
+            <span class="label-caps text-success">MORE ON “${esc(lastTopic)}” — passage${next.length > 1 ? 's' : ''} ${lastShown - next.length + 1}–${lastShown} of ${lastRanking.length}</span>
+            ${next.map(passageHtml).join('')}
+            ${followChips(lastShown) || `<p class="text-xs text-dim" style="margin-top:10px;">That's the full verified record for this topic — ask a new question for anything else.</p>`}</div>`;
+        } else {
+          html = `<div class="nf-chat-bubble">
+            <p class="text-sm text-muted" style="margin:0;">That's everything the verified corpus holds on
+            “${esc(lastTopic)}”. Try one of these instead:</p>${suggestionChips()}</div>`;
+        }
+
       } else {
-        botRow.innerHTML = `<div class="nf-chat-bubble">
-          <span class="label-caps text-success">ANSWER — grounded in ${hits.length} retrieved passage${hits.length > 1 ? 's' : ''}</span>
-          ${hits.map(h => `
-            <p class="text-sm text-muted" style="margin-top:10px;">${esc(h.passage.text)}</p>
-            <div class="insight-source">SOURCE · ${esc(h.passage.title)} · relevance ${(h.score * 100).toFixed(0)}</div>`).join('')}
-        </div>`;
+        const hits = retrieve(q, CORPUS);
+        if (!hits.length) {
+          html = `<div class="nf-chat-bubble"><span class="text-warning font-mono text-xs">NO MATCH</span>
+            <p class="text-sm text-muted" style="margin-top:8px;">Nothing in the verified NoiseFloor corpus matches that —
+            I only answer from this project's data, never invent facts. Try one of these:</p>${suggestionChips()}</div>`;
+        } else {
+          lastRanking = retrieve(q, CORPUS, 99);   // keep the full ranking for "tell me more"
+          lastShown = hits.length;
+          lastTopic = q;
+          html = `<div class="nf-chat-bubble">
+            <span class="label-caps text-success">ANSWER — grounded in ${hits.length} retrieved passage${hits.length > 1 ? 's' : ''}</span>
+            ${hits.map(passageHtml).join('')}
+            ${followChips(lastShown)}</div>`;
+        }
       }
+
+      botRow.innerHTML = html;
+      bindChips(botRow);
       area.scrollTop = area.scrollHeight;
     }, 450 + Math.random() * 400);   // small human-ish delay
   }
