@@ -121,20 +121,37 @@
 
   function answer(query) {
     const area = document.getElementById('ins-answer-area');
-    if (!area || !INDEX) return;
-    const hits = retrieve(query, CORPUS);
-    if (!hits.length) {
-      area.innerHTML = `<div class="insight-answer"><span class="text-warning font-mono text-xs">NO MATCH</span>
-        <p class="text-sm text-muted mt-2">Nothing in the verified NoiseFloor corpus matches that. Try one of the suggested questions.</p></div>`;
-      return;
-    }
-    area.innerHTML = `
-      <div class="insight-answer">
-        <span class="label-caps text-success">ANSWER — grounded in ${hits.length} retrieved passage${hits.length > 1 ? 's' : ''}</span>
-        ${hits.map(h => `
-          <p class="text-sm text-muted mt-4" style="margin-top:12px;">${esc(h.passage.text)}</p>
-          <div class="insight-source">SOURCE · ${esc(h.passage.title)} · relevance ${(h.score * 100).toFixed(0)}</div>`).join('')}
-      </div>`;
+    if (!area || !INDEX || !query.trim()) return;
+    const q = query.trim();
+
+    // User bubble (right side)
+    const userRow = document.createElement('div');
+    userRow.className = 'nf-chat-row user';
+    userRow.innerHTML = `<div class="nf-chat-bubble">${esc(q)}</div>`;
+    area.appendChild(userRow);
+
+    // Assistant bubble with typing indicator, then grounded retrieval
+    const botRow = document.createElement('div');
+    botRow.className = 'nf-chat-row bot';
+    botRow.innerHTML = `<div class="nf-chat-bubble typing"><span></span><span></span><span></span></div>`;
+    area.appendChild(botRow);
+    area.scrollTop = area.scrollHeight;
+
+    setTimeout(() => {
+      const hits = retrieve(q, CORPUS);
+      if (!hits.length) {
+        botRow.innerHTML = `<div class="nf-chat-bubble"><span class="text-warning font-mono text-xs">NO MATCH</span>
+          <p class="text-sm text-muted mt-2" style="margin-top:8px;">Nothing in the verified NoiseFloor corpus matches that. Try one of the suggested questions.</p></div>`;
+      } else {
+        botRow.innerHTML = `<div class="nf-chat-bubble">
+          <span class="label-caps text-success">ANSWER — grounded in ${hits.length} retrieved passage${hits.length > 1 ? 's' : ''}</span>
+          ${hits.map(h => `
+            <p class="text-sm text-muted" style="margin-top:10px;">${esc(h.passage.text)}</p>
+            <div class="insight-source">SOURCE · ${esc(h.passage.title)} · relevance ${(h.score * 100).toFixed(0)}</div>`).join('')}
+        </div>`;
+      }
+      area.scrollTop = area.scrollHeight;
+    }, 450 + Math.random() * 400);   // small human-ish delay
   }
 
   let CORPUS = [];

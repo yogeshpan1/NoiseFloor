@@ -520,17 +520,60 @@ document.addEventListener("DOMContentLoaded", () => {
   function initHypothesis() {
     const ctx = document.getElementById('chart-hyp-density');
     if (!ctx) return;
-    
+
     const labels = Array.from({length: 100}, (_, i) => (i - 50) / 10);
     const pdf = (x, mu, sigma) => Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2)) / (sigma * Math.sqrt(2 * Math.PI));
 
-    // Real tone means per crisis from DATA.incidents_summary
+    // Real tone means per crisis from DATA.incidents_summary; nInd/nChn are
+    // real active-day counts used by the live Welch test.
     const crisisParams = {
-      all:        { ind: { mu: -2.33, sigma: 1.2 }, chn: { mu: -0.48, sigma: 0.8 }, label: 'All Crises' },
-      earthquake: { ind: { mu: -2.26, sigma: 1.1 }, chn: { mu: -0.29, sigma: 0.7 }, label: '2015 Earthquake' },
-      blockade:   { ind: { mu: -2.43, sigma: 1.3 }, chn: { mu: -0.45, sigma: 0.9 }, label: '2015 Blockade' },
-      genz:       { ind: { mu: -2.30, sigma: 1.0 }, chn: { mu: -0.71, sigma: 1.0 }, label: '2025 Gen-Z Protests' }
+      all:        { ind: { mu: -2.33, sigma: 1.2 }, chn: { mu: -0.48, sigma: 0.8 }, nInd: 223, nChn: 200, label: 'All Crises' },
+      earthquake: { ind: { mu: -2.26, sigma: 1.1 }, chn: { mu: -0.29, sigma: 0.7 }, nInd: 61,  nChn: 60,  label: '2015 Earthquake' },
+      blockade:   { ind: { mu: -2.43, sigma: 1.3 }, chn: { mu: -0.45, sigma: 0.9 }, nInd: 95,  nChn: 90,  label: '2015 Blockade' },
+      genz:       { ind: { mu: -2.30, sigma: 1.0 }, chn: { mu: -0.71, sigma: 1.0 }, nInd: 67,  nChn: 50,  label: '2025 Gen-Z Protests' }
     };
+
+    // What-if state: user-dragged shifts applied on top of the real means
+    const shifts = { ind: 0, chn: 0 };
+    const eff = p => ({
+      indMu: p.ind.mu + shifts.ind, indSd: p.ind.sigma,
+      chnMu: p.chn.mu + shifts.chn, chnSd: p.chn.sigma
+    });
+
+    // Two-sided p-value under a normal approximation of the Welch distribution
+    const normSf = z => {
+      const t = 1 / (1 + 0.2316419 * Math.abs(z));
+      const d = 0.3989423 * Math.exp(-z * z / 2);
+      return d * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 +
+             t * (-1.821255978 + t * 1.330274429))));
+    };
+    const welch = p => {
+      const e = eff(p);
+      const se = Math.sqrt(e.indSd * e.indSd / p.nInd + e.chnSd * e.chnSd / p.nChn);
+      const t = se ? (e.indMu - e.chnMu) / se : 0;
+      return { t, p: Math.min(1, 2 * normSf(Math.abs(t))) };
+    };
+
+    // Dashed vertical marker at each country's CURRENT (shifted) mean
+    const meanLinePlugin = { id: 'nfHypMeans', afterDatasetsDraw(chart) {
+      const ms = chart.$nfMeans;
+      if (!ms || !chart.scales.x || !chart.chartArea) return;
+      const xs = chart.scales.x, area = chart.chartArea, c = chart.ctx;
+      ms.forEach(m => {
+        const idx = Math.round(m.mu * 10 + 50);          // labels are (i-50)/10
+        if (idx < 0 || idx >= labels.length) return;
+        const x = xs.getPixelForValue(idx);
+        if (!isFinite(x) || x < area.left || x > area.right) return;
+        c.save();
+        c.strokeStyle = m.color;
+        c.setLineDash([5, 4]);
+        c.lineWidth = 1.5;
+        c.beginPath();
+        c.moveTo(x, area.top); c.lineTo(x, area.bottom);
+        c.stroke();
+        c.restore();
+      });
+    }};
     
     const densityChart = new Chart(ctx, {
       type: 'line',
@@ -558,56 +601,81 @@ document.addEventListener("DOMContentLoaded", () => {
           y: { display: false, grid },
           x: { grid: gridX, title: { display: true, text: 'Tone (-10 to +10)', color: P.dim }, ticks: { maxTicksLimit: 10 } }
         }
-      }
+      },
+      plugins: [meanLinePlugin]
     });
 
-    const runBtn = document.getElementById('btn-run-hypothesis');
-    const spinner = document.getElementById('hyp-spinner');
-    const btnText = document.getElementById('hyp-btn-text');
-    const resultPanel = document.getElementById('hyp-result-panel');
-    const resultText = document.getElementById('hyp-result-text');
-    const crisisSelect = document.getElementById('hyp-crisis-select');
-    
+    let key = 'all';
+    const currentParams = () => crisisParams[key] || crisisParams.all;
+
+    // Live recompute: curves shift + mean markers move + t/p update — no reload
+    function applyTo(p) {
+      const e = eff(p);
+      densityChart.data.datasets[0].data = labels.map(x => pdf(x, e.indMu, e.indSd));
+      densityChart.data.datasets[1].data = labels.map(x => pdf(x, e.chnMu, e.chnSd));
+      densityChart.$nfMeans = [{ mu: e.indMu, color: P.india }, { mu: e.chnMu, color: P.china }];
+      densityChart.update();
+
+      const w = welch(p);
+      const sig = w.p < 0.05;
+      resultPanel.style.display = 'block';
+      resultText.innerHTML =
+        `Crisis: <strong>${p.label}</strong><br>` +
+        `India Mean Tone: <span style="color:${P.india}">${e.indMu.toFixed(2)}</span>` +
+        ` &nbsp;·&nbsp; China Mean Tone: <span style="color:${P.china}">${e.chnMu.toFixed(2)}</span><br>` +
+        `Gap (CHN−IND): <span style="color:${P.ok}">${(e.chnMu - e.indMu).toFixed(2)}</span><br>` +
+        `Welch t = ${w.t.toFixed(2)} &nbsp;·&nbsp; p ≈ ${w.p < 0.0001 ? '&lt; 0.0001' : w.p.toFixed(4)} → ` +
+        (sig
+          ? `<span style="color:${P.ok}">REJECT H₀</span> — the gap is statistically real`
+          : `<span style="color:${P.warn}">FAIL TO REJECT H₀</span> — no detectable difference`);
+    }
+
+    // What-if sliders — everything recomputes on drag
+    const bindShift = (inputId, valId, who) => {
+      const inp = document.getElementById(inputId), val = document.getElementById(valId);
+      if (!inp || !val) return;
+      inp.addEventListener('input', () => {
+        shifts[who] = parseFloat(inp.value);
+        val.textContent = (shifts[who] >= 0 ? '+' : '') + shifts[who].toFixed(2);
+        applyTo(currentParams());
+      });
+    };
+    bindShift('hyp-india-shift', 'hyp-india-val', 'ind');
+    bindShift('hyp-china-shift', 'hyp-china-val', 'chn');
+
+    if (crisisSelect) crisisSelect.addEventListener('change', () => {
+      key = crisisSelect.value;
+      applyTo(currentParams());
+    });
+
     if (runBtn) {
       runBtn.addEventListener('click', () => {
         spinner.style.display = 'inline-block';
         btnText.innerText = 'TESTING...';
         runBtn.disabled = true;
-        resultPanel.style.display = 'none';
-
         setTimeout(() => {
-          const key = crisisSelect ? crisisSelect.value : 'all';
-          const p = crisisParams[key] || crisisParams.all;
-
-          // Update chart with new crisis data
-          densityChart.data.datasets[0].data = labels.map(x => pdf(x, p.ind.mu, p.ind.sigma));
-          densityChart.data.datasets[1].data = labels.map(x => pdf(x, p.chn.mu, p.chn.sigma));
-          densityChart.update('active');
-
-          // Show result
-          const gap = (p.chn.mu - p.ind.mu).toFixed(4);
-          resultText.innerHTML = `Crisis: <strong>${p.label}</strong><br>India Mean Tone: <span style="color:${P.india}">${p.ind.mu}</span><br>China Mean Tone: <span style="color:${P.china}">${p.chn.mu}</span><br>Gap (CHN−IND): <span style="color:${P.ok}">+${gap}</span><br>p-value: 0.0051 → <span style="color:${P.ok}">REJECTED H₀</span>`;
-          resultPanel.style.display = 'block';
-
+          applyTo(currentParams());
           spinner.style.display = 'none';
           btnText.innerText = 'RUN TEST';
           runBtn.disabled = false;
-        }, 1200);
+        }, 700);
       });
     }
 
-    // Crisis quick-select buttons (Test Console) — sync the dropdown
+    // Crisis quick-select buttons — sync dropdown AND recompute live
     document.querySelectorAll('.crisis-btn[data-crisis]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.crisis-btn[data-crisis]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const sel = document.getElementById('hyp-crisis-select');
-        if (sel) sel.value = btn.getAttribute('data-crisis');
+        if (crisisSelect) crisisSelect.value = btn.getAttribute('data-crisis');
+        key = btn.getAttribute('data-crisis');
+        applyTo(currentParams());
       });
     });
     // Reflect the default selection on first paint
     const defaultBtn = document.querySelector('.crisis-btn[data-crisis="all"]');
     if (defaultBtn) defaultBtn.classList.add('active');
+    applyTo(currentParams());
   }
 
   // ─── VIEW: DATA SOURCES ─────────────────────────────────────────────────

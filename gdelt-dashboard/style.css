@@ -835,6 +835,52 @@ body {
   background: linear-gradient(135deg, rgba(220, 20, 60, 0.30), rgba(44, 200, 232, 0.10));
 }
 
+/* ─── Insight Q&A: conversation transcript ─── */
+.nf-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 520px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.nf-chat-row { display: flex; }
+.nf-chat-row.user { justify-content: flex-end; }
+.nf-chat-bubble {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.nf-chat-row.user .nf-chat-bubble {
+  background: rgba(44, 200, 232, 0.10);
+  border-color: rgba(44, 200, 232, 0.35);
+  border-bottom-right-radius: 4px;
+}
+.nf-chat-row.bot .nf-chat-bubble { border-bottom-left-radius: 4px; }
+.nf-chat-bubble.typing {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 14px 16px;
+}
+.nf-chat-bubble.typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--text-dim);
+  animation: nfTyping 1s infinite ease-in-out;
+}
+.nf-chat-bubble.typing span:nth-child(2) { animation-delay: 0.15s; }
+.nf-chat-bubble.typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes nfTyping {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%           { transform: translateY(-4px); opacity: 1; }
+}
+
 .feed-dayfilter {
   display: flex;
   align-items: center;

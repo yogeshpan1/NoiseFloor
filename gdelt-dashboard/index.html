@@ -746,6 +746,22 @@
           <button class="crisis-btn" data-crisis="genz" type="button">2025 Gen-Z Protests</button>
         </div>
 
+        <div class="flex flex-col gap-2" style="border-top:1px solid var(--border); padding-top:12px;">
+          <span class="label-caps">What-if Simulation</span>
+          <label class="text-xs text-muted flex items-center justify-between" for="hyp-india-shift">
+            India mean shift <b id="hyp-india-val" class="font-mono text-india">+0.00</b>
+          </label>
+          <input type="range" id="hyp-india-shift" min="-3" max="3" step="0.05" value="0"
+                 style="accent-color:var(--accent-india); width:100%;"/>
+          <label class="text-xs text-muted flex items-center justify-between" for="hyp-china-shift">
+            China mean shift <b id="hyp-china-val" class="font-mono text-china">+0.00</b>
+          </label>
+          <input type="range" id="hyp-china-shift" min="-3" max="3" step="0.05" value="0"
+                 style="accent-color:var(--accent-china); width:100%;"/>
+          <p class="text-xs text-dim">Drag to shift each country's mean tone. Curves, t-statistic and p-value
+            recompute live against the real window data (Welch test on window means, n = active days).</p>
+        </div>
+
         <button id="btn-run-hypothesis" class="btn-primary w-full">
           <span class="material-symbols-outlined" id="hyp-spinner" style="display:none; animation: spin 1s linear infinite; font-size:16px;">progress_activity</span>
           <span id="hyp-btn-text">RUN TEST</span>
@@ -1008,7 +1024,15 @@
     </div>
   </div>
 
-  <div id="ins-answer-area"></div>
+  <!-- Conversation transcript: user bubbles right, grounded answers left -->
+  <div class="card">
+    <div class="card-header"><h3 class="text-sm font-semibold">Conversation</h3>
+      <span class="text-xs text-dim">answers are retrieved verbatim from verified NoiseFloor data — never generated</span></div>
+    <div class="card-body nf-chat" id="ins-answer-area">
+      <div class="nf-chat-row bot"><div class="nf-chat-bubble">Namaste 🙏 I'm the NoiseFloor assistant. Ask me anything about
+        the India–China media-tone dataset — the three crises, hypothesis tests, or any verified event date.</div></div>
+    </div>
+  </div>
 </div>
 
 <!-- ╔══════════════════════════════════════════════╗
