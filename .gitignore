@@ -22,3 +22,5 @@ _ps.bat
 _kill.bat 
 _checkjs.bat 
 _run_ext.bat
+_smoketest.js 
+_css_snippet.css

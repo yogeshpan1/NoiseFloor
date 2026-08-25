@@ -100,9 +100,10 @@ New since the original build:
 - **Live Feed upgrade** — every headline carries an on-device tone chip, and each stream gets a
   3-point **AI briefing** generated locally by `summarize.js` (lexicon sentiment + term-frequency
   extraction over the retrieved titles). No external AI service; nothing invented.
-- **Insight Engine** — ask questions in plain English; a miniature RAG-style pipeline (inverted
-  index → TF-IDF retrieval → cited synthesis) answers strictly from NoiseFloor's verified event
-  log, findings and methodology. DSA showcase #2 alongside the DateIndex.
+- **Insight Engine** — ask questions in plain English; a hand-built **verified-answer search**
+  engine (inverted index → TF-IDF retrieval → cited passages) answers strictly from NoiseFloor's
+  verified event log, findings and methodology — retrieved text is shown verbatim, never generated.
+  DSA showcase #2 alongside the DateIndex.
 
 
 ## 🆕 Feature map (what was added where)

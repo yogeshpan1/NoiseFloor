@@ -85,7 +85,15 @@ def doc_fetch(params):
                 time.sleep(BACKOFF[attempt])
             else:
                 raise
+        except urllib.error.URLError as e:   # timeouts / DNS / refused connections
+            last = e
+            if attempt < len(BACKOFF):
+                print(f"    network error ({e.reason}); waiting {BACKOFF[attempt]}s…", flush=True)
+                time.sleep(BACKOFF[attempt])
+            else:
+                raise
     raise last
+
 
 
 def cached_fetch(key, params):
@@ -204,9 +212,9 @@ def main():
         try:
             data = build()
             break
-        except urllib.error.HTTPError as e:
+        except (urllib.error.HTTPError, urllib.error.URLError) as e:
             print(f"[round {attempt}/{MAX_ROUNDS}] cell exhausted backoffs "
-                  f"(HTTP {e.code}); cooling down {COOLDOWN}s — cache preserved, "
+                  f"({e}); cooling down {COOLDOWN}s — cache preserved, "
                   f"will resume automatically", flush=True)
             time.sleep(COOLDOWN)
     if data is None:

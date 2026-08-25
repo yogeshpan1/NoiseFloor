@@ -1,7 +1,7 @@
 "use strict";
 /* ============================================================================
-   NoiseFloor · NFInsights — retrieval-style Q&A over the project's own data
-   A miniature RAG pipeline, fully client-side and grounded ONLY in verified
+   NoiseFloor · NFInsights — verified-answer search over the project's own data
+   A hand-built retrieval engine (inverted index + TF-IDF), fully client-side and grounded ONLY in verified
    NoiseFloor content:
        corpus    → curated passages built from data_bundle.js + event log
        index     → hand-built inverted index (token → passage ids)
