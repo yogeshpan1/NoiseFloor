@@ -24,3 +24,5 @@ _checkjs.bat
 _run_ext.bat
 _smoketest.js 
 _css_snippet.css
+_open.bat 
+_shot.bat
