@@ -83,8 +83,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Init initial view
-  initChartsForView('dashboard');
+  // Init initial view — deferred like nav clicks (setTimeout) so the whole
+  // handler body (incl. `const $` and all helpers) finishes evaluating first;
+  // calling this synchronously hit `Cannot access '$' before initialization`.
+  setTimeout(() => initChartsForView('dashboard'), 50);
   chartsInitialized['dashboard'] = true;
 
   function initChartsForView(viewId) {
