@@ -15,3 +15,10 @@ Thumbs.db
 .DS_Store
 _ext.log 
 gdelt-dashboard/data/extended/_cellcache.json
+_ext_run.log 
+_commitmsg.txt 
+_count.py 
+_ps.bat 
+_kill.bat 
+_checkjs.bat 
+_run_ext.bat
