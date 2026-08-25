@@ -13,26 +13,44 @@
 
   const REFRESH_MS = 15 * 60 * 1000;
   const MAX_RECORDS = 20;
-  const VISIBLE_CARDS = 6;          // cards shown before "VIEW FULL COVERAGE"
+  const CARDS_PER_PAGE = 4;         // carousel page size
+  const SLIDE_MS = 5000;            // auto-slide interval
   const DAY_LABELS = ['Today', 'Yesterday', '2 days ago', '3 days ago',
                       '4 days ago', '5 days ago', '6 days ago'];
 
-  const STREAMS = [
-    { id: 'in-en', flag: '🇮🇳', region: 'in', label: 'India · English',
-      query: '(nepal OR kathmandu) sourcecountry:in sourcelang:english',
-      note: 'Indian outlets in English' },
-    { id: 'in-hi', flag: '🇮🇳', region: 'in', label: 'India · Hindi',
-      query: '(nepal OR kathmandu) sourcelang:hindi',
-      note: 'Hindi-language native coverage' },
-    { id: 'cn-en', flag: '🇨🇳', region: 'cn', label: 'China · English',
-      query: '(nepal OR kathmandu) sourcecountry:cn sourcelang:english',
-      note: 'Chinese state/global outlets in English' },
-    { id: 'cn-zh', flag: '🇨🇳', region: 'cn', label: 'China · 简体中文',
-      query: '(nepal OR 尼泊尔) sourcelang:simplifiedchinese',
-      note: 'Simplified Chinese native coverage' },
-    { id: 'gl-en', flag: '🌐', region: 'gl', label: 'Global · English',
-      query: '(nepal OR kathmandu) sourcelang:english',
-      note: 'Worldwide English baseline' }
+  // Each perspective MERGES one or more DOC queries (e.g. English + Hindi),
+  // de-duplicates by URL and sorts newest-first before rendering.
+  const SECTIONS = [
+    {
+      id: 'in2np', flag: '🇮🇳', title: 'India → Nepal', region: 'in',
+      note: 'How Indian media houses are narrating Nepal right now (English + Hindi)',
+      streams: [
+        { id: 'in-en', label: 'IN · EN', query: '(nepal OR kathmandu) sourcecountry:in sourcelang:english' },
+        { id: 'in-hi', label: 'IN · HI', query: '(nepal OR kathmandu) sourcelang:hindi' }
+      ]
+    },
+    {
+      id: 'cn2np', flag: '🇨🇳', title: 'China → Nepal', region: 'cn',
+      note: 'Chinese state and global outlets on Nepal (English + 简体中文)',
+      streams: [
+        { id: 'cn-en', label: 'CN · EN', query: '(nepal OR kathmandu) sourcecountry:cn sourcelang:english' },
+        { id: 'cn-zh', label: 'CN · ZH', query: '(nepal OR 尼泊尔) sourcelang:simplifiedchinese' }
+      ]
+    },
+    {
+      id: 'np2ic', flag: '🇳🇵', title: 'Nepal → India & China', region: 'np',
+      note: 'Nepali media houses reporting on both neighbours (the reverse gaze)',
+      streams: [
+        { id: 'np-en', label: 'NP · EN', query: '(india OR china OR indian OR chinese) sourcecountry:np sourcelang:english' }
+      ]
+    },
+    {
+      id: 'gl2np', flag: '🌐', title: 'World → Nepal', region: 'gl',
+      note: 'Worldwide English baseline — how the rest of the world frames Nepal',
+      streams: [
+        { id: 'gl-en', label: 'GL · EN', query: '(nepal OR kathmandu) sourcelang:english' }
+      ]
+    }
   ];
 
   const esc = window.NFEsc || (s => String(s ?? '')
@@ -106,7 +124,7 @@
   }
 
   // ─── Full-coverage list rows reuse the original compact text layout ────────
-  function articleRowHtml(a, S) {
+  function articleRowHtml(a, tagLabel) {
     const score = window.NFSummarize ? NFSummarize.headlineTone(a.title) : 0;
     const date = (a.seendate || '').replace(/^(\d{4})(\d{2})(\d{2}).*$/, '$1-$2-$3');
     return `<a class="feed-item" href="${esc(a.url)}" target="_blank" rel="noopener">
@@ -114,23 +132,23 @@
       <div class="feed-item-meta">
         ${toneChip(score)}
         <span class="feed-domain">${esc(a.domain)}</span>
-        <span class="feed-tag">${esc(S.label)}</span>
+        <span class="feed-tag">${esc(tagLabel)}</span>
         <span class="feed-date">${esc(date)}</span>
       </div>
     </a>`;
   }
 
 
-  // ─── Task 3: aggregate tone strip for a selected day/stream ────────────────
+  // ─── Section-level aggregate tone strip ────────────────────────────────────
   function summaryHtml(arts) {
     const scores = arts.map(toneScore);
     const avg = scores.length ? (scores.reduce((s, x) => s + x, 0) / scores.length) : 0;
     const pos = scores.filter(s => s > 1).length;
     const neg = scores.filter(s => s < -1).length;
     const neu = scores.length - pos - neg;
-    const pct = n => Math.round(100 * n / scores.length);
+    const pct = n => scores.length ? Math.round(100 * n / scores.length) : 0;
     return `<div class="feed-summary">
-      <span class="label-caps">DAY TONE μ</span><b>${avg.toFixed(2)}</b>
+      <span class="label-caps">SECTION TONE μ</span><b>${avg.toFixed(2)}</b>
       <span class="chip tone-pos">${pct(pos)}% POS</span>
       <span class="chip tone-neu">${pct(neu)}% NEU</span>
       <span class="chip tone-neg">${pct(neg)}% NEG</span>
@@ -138,16 +156,16 @@
     </div>`;
   }
 
-  function streamShell(S) {
+  function sectionShell(S) {
     const card = document.createElement('div');
-    card.className = 'card mb-4';
+    card.className = 'card mb-4 nf-section';
     card.id = `feed-${S.id}`;
     card.innerHTML = `
       <div class="card-header">
         <div class="flex items-center gap-3">
           <span style="font-size:18px;">${S.flag}</span>
           <div>
-            <h3 class="text-sm font-semibold mb-1">${esc(S.label)}</h3>
+            <h3 class="text-sm font-semibold mb-1">${esc(S.title)}</h3>
             <span class="text-xs text-dim">${esc(S.note)}</span>
           </div>
         </div>
@@ -156,22 +174,68 @@
           <span class="label-caps" data-role="status">LOADING…</span>
         </span>
       </div>
+      <div data-role="summary"></div>
       <div class="briefing-box" data-role="brief">
         <span class="label-caps text-cyan">⚡ AI BRIEFING — 3 POINTS</span>
         <ol data-role="brief-list"><li>Summarising retrieved headlines…</li></ol>
       </div>
-      <div data-role="summary"></div>
-      <div class="feed-list" data-role="list">
-        <div class="feed-empty">Fetching…</div>
+      <div class="nf-carousel" data-role="carousel">
+        <div class="nf-track" data-role="track">
+          <div class="feed-empty" style="width:100%;">Fetching…</div>
+        </div>
       </div>
+      <div class="nf-dots" data-role="dots" style="display:none;"></div>
       <div class="feed-full" data-role="full" style="display:none;"></div>`;
     return card;
   }
 
-  // ─── Render a stream from its article array (fresh fetch or session cache) ──
-  function renderStream(card, S, arts) {
+  // ─── Carousel engine: pages of CARDS_PER_PAGE cards, auto-slide, dots ──────
+  function buildCarousel(card, S, arts) {
+    const carousel = card.querySelector('[data-role="carousel"]');
+    const track = card.querySelector('[data-role="track"]');
+    const dotsBox = card.querySelector('[data-role="dots"]');
+
+    const pages = [];
+    for (let i = 0; i < arts.length; i += CARDS_PER_PAGE) {
+      pages.push(`<div class="nf-page">${
+        arts.slice(i, i + CARDS_PER_PAGE).map(a => articleCardHtml(a, S)).join('')
+      }</div>`);
+    }
+    track.innerHTML = pages.join('');
+    track.style.width = `${pages.length * 100}%`;
+
+    if (pages.length <= 1) { dotsBox.style.display = 'none'; return; }
+
+    dotsBox.style.display = '';
+    dotsBox.innerHTML = pages.map((_, i) =>
+      `<button class="nf-dot${i === 0 ? ' active' : ''}" type="button" aria-label="Page ${i + 1}"></button>`).join('');
+
+    let page = 0;
+    let timer = null;
+
+    const go = p => {
+      page = (p + pages.length) % pages.length;
+      track.style.transform = `translateX(-${page * (100 / pages.length)}%)`;
+      dotsBox.querySelectorAll('.nf-dot').forEach((d, i) => d.classList.toggle('active', i === page));
+    };
+    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+    const play = () => { stop(); timer = setInterval(() => go(page + 1), SLIDE_MS); };
+
+    dotsBox.querySelectorAll('.nf-dot').forEach((d, i) =>
+      d.addEventListener('click', () => { go(i); play(); }));
+    // Pause while the reader is looking at (or keyboard-navigating) this section
+    carousel.addEventListener('mouseenter', stop);
+    carousel.addEventListener('mouseleave', play);
+    carousel.addEventListener('focusin', stop);
+    carousel.addEventListener('focusout', play);
+
+    go(0);
+    play();
+  }
+
+  // ─── Render one perspective section from merged articles ───────────────────
+  function renderSection(card, S, arts) {
     const status = card.querySelector('[data-role="status"]');
-    const list = card.querySelector('[data-role="list"]');
     const briefList = card.querySelector('[data-role="brief-list"]');
     const moreBtn = card.querySelector('[data-role="more"]');
     const summarySlot = card.querySelector('[data-role="summary"]');
@@ -180,26 +244,22 @@
     status.textContent = `${arts.length} ARTICLES`;
 
     if (!arts.length) {
-      list.innerHTML = '<div class="feed-empty">No articles found for this stream/window right now.</div>';
+      card.querySelector('[data-role="track"]').innerHTML =
+        '<div class="feed-empty" style="width:100%;">No articles found for this perspective/window right now.</div>';
       summarySlot.innerHTML = '';
       briefList.innerHTML = '<li>Not enough headlines to summarise.</li>';
       moreBtn.style.display = 'none';
       return;
     }
 
-    list.innerHTML = `<div class="feed-grid">${
-      arts.slice(0, VISIBLE_CARDS).map(a => articleCardHtml(a, S)).join('')
-    }</div>`;
-
-    // Aggregate strip only for a specific selected day (LATEST keeps the old look)
-    summarySlot.innerHTML = dayOffset !== null ? summaryHtml(arts) : '';
+    summarySlot.innerHTML = summaryHtml(arts);
+    buildCarousel(card, S, arts);
 
     const bullets = window.NFSummarize ? NFSummarize.brief(arts) : [];
     briefList.innerHTML = bullets.length
       ? bullets.map(b => `<li>${esc(b)}</li>`).join('')
       : '<li>Not enough headlines to summarise.</li>';
 
-    // Task 2: expandable full-coverage panel (lazily built once per render)
     moreBtn.style.display = '';
     moreBtn.textContent = 'VIEW FULL COVERAGE';
     fullPanel.style.display = 'none';
@@ -208,8 +268,8 @@
       const opening = fullPanel.style.display === 'none';
       if (opening && !fullPanel.dataset.built) {
         fullPanel.innerHTML =
-          `<div class="feed-full-head"><span class="label-caps">FULL COVERAGE — ${arts.length} ARTICLES · ${esc(S.label)}</span></div>` +
-          arts.map(a => articleRowHtml(a, S)).join('');
+          `<div class="feed-full-head"><span class="label-caps">FULL COVERAGE — ${arts.length} ARTICLES · ${esc(S.title)}</span></div>` +
+          arts.map(a => articleRowHtml(a, a._tag || '')).join('');
         fullPanel.dataset.built = '1';
       }
       fullPanel.style.display = opening ? '' : 'none';
@@ -217,30 +277,40 @@
     };
   }
 
-  async function fetchStream(S, card) {
-    const key = `${S.id}:${dayOffset === null ? 'latest' : dayOffset}`;
-    if (sessionCache.has(key)) {           // Task 3: no re-fetch for seen windows
-      renderStream(card, S, sessionCache.get(key));
-      return;
-    }
-    const status = card.querySelector('[data-role="status"]');
-    const list = card.querySelector('[data-role="list"]');
-    const briefList = card.querySelector('[data-role="brief-list"]');
-    const url = buildUrl(S);
+  async function fetchOne(S, streamDef) {
+    const key = `${streamDef.id}:${dayOffset === null ? 'latest' : dayOffset}`;
+    if (sessionCache.has(key)) return sessionCache.get(key);   // no re-fetch for seen windows
+    const res = await fetch(buildUrl(streamDef));
+    if (res.status === 429) throw Object.assign(new Error('rate-limited'), { rateLimited: true });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const arts = ((await res.json()).articles || []).map(a => ({ ...a, _tag: streamDef.label }));
+    sessionCache.set(key, arts);
+    return arts;
+  }
 
+  async function loadSection(S, card) {
     try {
-      const res = await fetch(url);
-      if (res.status === 429) throw Object.assign(new Error('rate-limited'), { rateLimited: true });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const arts = (await res.json()).articles || [];
-      sessionCache.set(key, arts);
-      renderStream(card, S, arts);
+      // Stagger multi-query sections (EN + HI / EN + ZH) to stay API-friendly
+      const results = [];
+      for (const [i, sd] of S.streams.entries()) {
+        results.push(await fetchOne(S, sd));
+        if (i < S.streams.length - 1) await sleep(900);
+      }
+      // Merge → dedupe by URL → newest first
+      const seen = new Set();
+      const merged = results.flat()
+        .filter(a => a && a.url && !seen.has(a.url) && seen.add(a.url))
+        .sort((a, b) => String(b.seendate || '').localeCompare(String(a.seendate || '')));
+      renderSection(card, S, merged);
     } catch (err) {
+      const status = card.querySelector('[data-role="status"]');
+      const track = card.querySelector('[data-role="track"]');
+      const briefList = card.querySelector('[data-role="brief-list"]');
       const msg = err.rateLimited
         ? 'GDELT is rate-limiting us (HTTP 429). The feed auto-retries on next refresh — historical analysis is unaffected.'
         : `Could not reach GDELT (${esc(err.message)}). Check your connection; everything else on this page works offline from cached data.`;
       status.innerHTML = '<span class="text-warning">OFFLINE</span>';
-      list.innerHTML = `<div class="feed-error">⚠ ${msg}</div>`;
+      track.innerHTML = `<div class="feed-error" style="width:100%;">⚠ ${msg}</div>`;
       briefList.innerHTML = '<li>Unavailable while the stream is offline.</li>';
     }
   }
@@ -249,11 +319,10 @@
     if (loading) return;
     if (!force && dayOffset === null && Date.now() - lastFetch < REFRESH_MS) return;
     loading = true;
-    // Stagger requests to stay friendly to the DOC API
-    for (const [i, S] of STREAMS.entries()) {
+    for (const [i, S] of SECTIONS.entries()) {
       const card = document.getElementById(`feed-${S.id}`);
-      if (card) await fetchStream(S, card);
-      if (i < STREAMS.length - 1) await sleep(1200);
+      if (card) await loadSection(S, card);
+      if (i < SECTIONS.length - 1) await sleep(1200);
     }
     lastFetch = Date.now();
     loading = false;
@@ -279,7 +348,7 @@
       host = document.createElement('div');
       host.id = 'nf-feed-host';
       view.appendChild(host);
-      for (const S of STREAMS) host.appendChild(streamShell(S));
+      for (const S of SECTIONS) host.appendChild(sectionShell(S));
 
       // Manual refresh + day-filter toolbar above the streams
       const bar = document.createElement('div');

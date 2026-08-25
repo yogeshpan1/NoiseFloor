@@ -794,6 +794,47 @@ body {
 }
 .feed-summary b { color: var(--text-main); font-size: 13px; }
 
+/* ─── Live feed: perspective carousels ─── */
+.nf-carousel {
+  overflow: hidden;
+  cursor: grab;
+}
+.nf-track {
+  display: flex;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nf-page {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px 16px;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 1100px) { .nf-page { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px)  { .nf-page { grid-template-columns: 1fr; } }
+.nf-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px 12px;
+}
+.nf-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.nf-dot:hover { transform: scale(1.25); }
+.nf-dot.active { background: var(--accent-cyan, #2cc8e8); }
+.feed-thumb.thumb-np {
+  background: linear-gradient(135deg, rgba(220, 20, 60, 0.30), rgba(44, 200, 232, 0.10));
+}
+
 .feed-dayfilter {
   display: flex;
   align-items: center;
