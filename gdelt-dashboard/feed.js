@@ -111,6 +111,7 @@
       <div class="feed-thumb thumb-${S.region}">
         <span class="feed-thumb-fallback">${esc(a.domain)}</span>
         ${img}
+        <span class="feed-domain-badge">${esc(a.domain)}</span>
       </div>
       <div class="feed-card-body">
         <div class="feed-card-title">${esc(a.title)}</div>
@@ -183,6 +184,12 @@
         <div class="nf-track" data-role="track">
           <div class="feed-empty" style="width:100%;">Fetching…</div>
         </div>
+        <button class="nf-arrow nf-arrow-prev" data-role="prev" type="button" aria-label="Previous page">
+          <span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span>
+        </button>
+        <button class="nf-arrow nf-arrow-next" data-role="next" type="button" aria-label="Next page">
+          <span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span>
+        </button>
       </div>
       <div class="nf-dots" data-role="dots" style="display:none;"></div>
       <div class="feed-full" data-role="full" style="display:none;"></div>`;
@@ -204,7 +211,13 @@
     track.innerHTML = pages.join('');
     track.style.width = `${pages.length * 100}%`;
 
-    if (pages.length <= 1) { dotsBox.style.display = 'none'; return; }
+    if (pages.length <= 1) {
+      dotsBox.style.display = 'none';
+      const p = card.querySelector('[data-role="prev"]'), n = card.querySelector('[data-role="next"]');
+      if (p) p.style.display = 'none';
+      if (n) n.style.display = 'none';
+      return;
+    }
 
     dotsBox.style.display = '';
     dotsBox.innerHTML = pages.map((_, i) =>
@@ -223,6 +236,26 @@
 
     dotsBox.querySelectorAll('.nf-dot').forEach((d, i) =>
       d.addEventListener('click', () => { go(i); play(); }));
+
+    // Edge arrows
+    const prevBtn = card.querySelector('[data-role="prev"]');
+    const nextBtn = card.querySelector('[data-role="next"]');
+    if (prevBtn) prevBtn.addEventListener('click', () => { go(page - 1); play(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { go(page + 1); play(); });
+
+    // Touch / pointer swipe (a >40px horizontal drag flips the page; smaller
+    // movements still fall through to the article link)
+    let dragX = null;
+    carousel.addEventListener('pointerdown', e => { dragX = e.clientX; stop(); });
+    carousel.addEventListener('pointerup', e => {
+      if (dragX === null) return;
+      const dx = e.clientX - dragX;
+      dragX = null;
+      if (Math.abs(dx) > 40) go(page + (dx < 0 ? 1 : -1));
+      play();
+    });
+    carousel.addEventListener('pointercancel', () => { dragX = null; play(); });
+
     // Pause while the reader is looking at (or keyboard-navigating) this section
     carousel.addEventListener('mouseenter', stop);
     carousel.addEventListener('mouseleave', play);
