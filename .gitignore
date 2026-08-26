@@ -34,5 +34,7 @@ _chk.py
 _chk2.py
 _feed_mid.txt
 _ext_build.log
+_ext_chain.bat
+_probe_out.txt
 _shot_*.png
 gdelt-dashboard/_preview.html
