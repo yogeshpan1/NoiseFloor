@@ -77,7 +77,16 @@ def doc_fetch(params):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "NoiseFloor-capstone/1.0"})
             with urllib.request.urlopen(req, timeout=60) as r:
-                return json.loads(r.read().decode("utf-8"))
+                raw = r.read().decode("utf-8", errors="replace")
+            return json.loads(raw)
+        except json.JSONDecodeError as e:
+            # GDELT occasionally serves an HTML/text error page with HTTP 200
+            last = e
+            if attempt < len(BACKOFF):
+                print(f"    non-JSON response; waiting {BACKOFF[attempt]}s…", flush=True)
+                time.sleep(BACKOFF[attempt])
+            else:
+                raise
         except urllib.error.HTTPError as e:
             last = e
             if e.code == 429 and attempt < len(BACKOFF):
