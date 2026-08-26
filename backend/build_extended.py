@@ -35,7 +35,10 @@ BACKOFF = (60, 120, 300, 600)    # escalating waits on HTTP 429
 COOLDOWN = 900                   # whole-build cool-down after a cell exhausts BACKOFF
 MAX_ROUNDS = 24                  # give up only after ~6h of cool-down cycles
 
-REPORTERS = {"india": "sourcecountry:IN", "china": "sourcecountry:CN"}
+REPORTERS = {"india": "sourcecountry:IN", "china": "sourcecountry:CH"}
+# NOTE: GDELT DOC API uses FIPS 10-4 codes - China is CH, not CN. An invalid
+# code makes the API return an empty JSON object {}, which silently poisons
+# the cache with "no data" (this is why every china cell was None before).
 
 SUBJECTS = {
     "nepal": "(nepal OR kathmandu)",
@@ -111,6 +114,10 @@ def cached_fetch(key, params):
         print(f"    [cache] {key}", flush=True)
         return _CACHE[key]
     payload = doc_fetch(params)
+    if not isinstance(payload, dict) or "timeline" not in payload:
+        # {} is what the API returns for an invalid query (e.g. bad FIPS code);
+        # never cache it as if it were real "no coverage" data.
+        raise ValueError(f"non-timeline payload for {key}: {str(payload)[:80]!r}; not caching")
     _CACHE[key] = payload
     time.sleep(GAP)
     save_cache()
