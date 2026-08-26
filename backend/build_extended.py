@@ -228,7 +228,11 @@ def main():
         try:
             data = build()
             break
-        except (urllib.error.HTTPError, urllib.error.URLError) as e:
+        except (urllib.error.HTTPError, urllib.error.URLError,
+                json.JSONDecodeError, ValueError) as e:
+            # JSONDecodeError/ValueError: GDELT served a non-JSON or empty
+            # payload for every backoff attempt on this cell — cool down and
+            # retry the round instead of dying (cache is preserved either way).
             print(f"[round {attempt}/{MAX_ROUNDS}] cell exhausted backoffs "
                   f"({e}); cooling down {COOLDOWN}s — cache preserved, "
                   f"will resume automatically", flush=True)
