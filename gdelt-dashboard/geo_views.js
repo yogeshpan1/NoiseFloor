@@ -211,6 +211,14 @@
     if (!dv || !dv.india || !dv.china ||
         (dv.india.attention_avg == null && dv.china.attention_avg == null)) {
       pending(['chart-dv-volume', 'chart-dv-tone'], PENDING_MSG);
+      // Scenario Simulator has no baselines to scale yet — disable the sliders
+      // and say why, instead of leaving them silently dead.
+      for (const id of ['dv-sim-ind', 'dv-sim-chn']) {
+        const s = document.getElementById(id);
+        if (s) { s.disabled = true; s.title = 'Waiting for the regional-lens dataset (see note above).'; }
+      }
+      const verdict = document.getElementById('dv-sim-verdict');
+      if (verdict) verdict.textContent = 'Simulator inactive — it needs the 12-month aid-coverage baselines from the regional-lens dataset (being built; this view fills in automatically).';
       return;
     }
     dividend._done = true;
