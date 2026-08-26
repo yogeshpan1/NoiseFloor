@@ -33,7 +33,7 @@
       id: 'cn2np', flag: '🇨🇳', title: 'China → Nepal', region: 'cn',
       note: 'Chinese state and global outlets on Nepal (English + 简体中文)',
       streams: [
-        { id: 'cn-en', label: 'CN · EN', query: '(nepal OR kathmandu) sourcecountry:cn sourcelang:english' },
+        { id: 'cn-en', label: 'CN · EN', query: '(nepal OR kathmandu) sourcecountry:CH sourcelang:english' },
         { id: 'cn-zh', label: 'CN · ZH', query: '(nepal OR 尼泊尔) sourcelang:simplifiedchinese' }
       ]
     },
