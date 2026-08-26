@@ -194,6 +194,13 @@ python -m venv .venv
 start gdelt-dashboard\index.html
 ```
 
+> **GDELT quirk worth knowing (cost us a debugging session):** the DOC 2.0 API
+> validates `sourcecountry:` against **FIPS 10-4 codes**, so China is `CH`, not
+> `CN`. An invalid code does not error — the API returns an empty JSON object
+> `{}`, which looks like "no coverage" and (before a cache guard was added)
+> silently poisoned the dataset cache with nulls for every China cell. Both
+> `build_extended.py` and the Live Feed's CN·EN stream use `sourcecountry:CH`.
+
 The Live Feed calls the GDELT DOC API directly from the browser (the API sends CORS-friendly
 headers). If a host ever blocks the request, an explicit error state is shown and the rest of the
 dashboard keeps working.
