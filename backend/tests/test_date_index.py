@@ -8,7 +8,7 @@ import csv
 
 
 def load_daily():
-    path = os.path.join(os.path.dirname(__file__), "..", "..", "daily_sentiment.csv")
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "daily_sentiment.csv")
     with open(path, encoding="utf-8") as f:
         return list(csv.DictReader(f))
 

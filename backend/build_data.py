@@ -20,7 +20,7 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "gdelt-dashboard", "data_bundle.js")
+OUT = os.path.join(ROOT, "data", "data_bundle.js")
 
 # ---- LOCKED FINDINGS: do not change; build fails if CSVs ever disagree ----
 LOCKED_INCIDENTS = {
@@ -37,9 +37,11 @@ from anomaly import detect_anomalies  # noqa: E402
 
 
 def load_csv(name):
-    path = os.path.join(ROOT, name)
+    # CSVs were moved into data/ in the repo-cleanup commit; try data/ first,
+    # then fall back to the repo root for any older working copy.
+    path = os.path.join(ROOT, "data", name)
     if not os.path.exists(path):
-        path = os.path.join(ROOT, "data", name)
+        path = os.path.join(ROOT, name)
     with open(path, encoding="utf-8-sig") as f:
         rows = list(csv.DictReader(f))
     # coerce numeric-looking fields (keep None for blanks)

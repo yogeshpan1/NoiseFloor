@@ -17,8 +17,7 @@ NoiseFloor/
 │   ├── vite.config.js          # Vite build config
 │   └── tailwind.config.js      # Tailwind theme (gold/black console aesthetic)
 ├── backend/                    # Python pipeline + DSA + tests
-├── data/                       # Event log + pipeline CSVs
-├── *.csv                       # Pipeline outputs (daily_sentiment, comparisons...)
+├── data/                       # Event log + all pipeline CSVs
 ├── NoiseFloor.ipynb            # Original PySpark notebook
 ├── notebook_addendum.ipynb     # Nepal->India/China reverse analysis
 └── README.md
