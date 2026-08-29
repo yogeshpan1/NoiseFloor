@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -22,3 +23,45 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+=======
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Scratch / temp
+_scratch_*
+*.tmp
+temp.zip
+
+# OS
+Thumbs.db
+.DS_Store
+_ext.log 
+gdelt-dashboard/data/extended/_cellcache.json
+_ext_run.log 
+_commitmsg.txt 
+_count.py 
+_ps.bat 
+_kill.bat 
+_checkjs.bat 
+_run_ext.bat
+_smoketest.js 
+_css_snippet.css
+_open.bat 
+_shot.bat
+_dump.py 
+_sept.py 
+_topgap.py 
+_msg.txt
+_chk.py
+_chk2.py
+_feed_mid.txt
+_ext_build.log
+_ext_chain.bat
+_probe_out.txt
+_shot_*.png
+gdelt-dashboard/_preview.html
+>>>>>>> a8bbf1907bc9c63e8fdc0a95cc0cd099232e43db
