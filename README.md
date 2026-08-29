@@ -29,7 +29,6 @@ NoiseFloor/
 
 ![Gold-continent earth texture rendered in Three.js — the real-time GDELT globe shown at app load (assets/earth-gold-globe.png)](assets/earth-gold-globe.png)
 
-![Nepal outline vector — NoiseFloor's regional focus country (assets/nepal-outline.svg)](assets/nepal-outline.svg)
 
 ## Running everything
 
