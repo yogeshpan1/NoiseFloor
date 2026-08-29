@@ -1,6 +1,6 @@
 # NoiseFloor — Geopolitical Intelligence Dashboard
 
-![NoiseFloor — gold-continent globe rendered in Three.js (assets/earth-gold-globe.png)](assets/earth-gold-globe.png)
+![NoiseFloor — brand mark](assets/logo-nf.png)
 
 **BSc Computing final-year Big Data capstone** — Islington College / London Metropolitan University
 Big Data with PySpark elective, Summer Industry Enrichment Program.
@@ -20,6 +20,7 @@ NoiseFloor/
 │   └── tailwind.config.js      # Tailwind theme (gold/black console aesthetic)
 ├── backend/                    # Python pipeline + DSA + tests
 ├── data/                       # Event log + all pipeline CSVs
+├── assets/                     # Brand mark + globe (vector + raster)
 ├── NoiseFloor.ipynb            # Original PySpark notebook
 ├── notebook_addendum.ipynb     # Nepal->India/China reverse analysis
 └── README.md
@@ -29,11 +30,20 @@ NoiseFloor/
 
 | | |
 |---|---|
-| ![Gold-continent globe — Three.js coverage visualisation shown on app load](assets/earth-gold-globe.png) | **Global coverage globe** — every article plotted as a dot on a Three.js sphere, sized by mention volume. The real-time GDELT feed pulses new events live on this surface. ([assets/earth-gold-globe.png](assets/earth-gold-globe.png)) |
-| ![Gold-on-black continent texture — same earth used as a lit sphere material](assets/earth-gold-globe.svg) | **Vector globe source** — the same continent silhouettes as an SVG, used wherever a flat representation is more appropriate than the 3D sphere. ([assets/earth-gold-globe.svg](assets/earth-gold-globe.svg)) |
-| ![Nepal outline — country of focus throughout the project](assets/nepal-outline.svg) | **Nepal country outline** — the subject of every analysis in this repository. All tone charts, event logs, and dividend ledgers hang off this single country. ([assets/nepal-outline.svg](assets/nepal-outline.svg)) |
+| ![NF brand mark — gold on black, 512×512 vector source in assets/logo-nf.svg](assets/logo-nf.png) | **Brand mark (NF monogram)** — the gold-on-noir logo used in the README header, the React `<HeroSection>`, and anywhere the project is named. Vector source at `assets/logo-nf.svg`; 512×512 raster fallback at `assets/logo-nf.png`. |
+| ![Gold-continent globe — Three.js coverage visualisation shown on app load](assets/earth-gold-globe.png) | **Global coverage globe** — every article plotted as a dot on a Three.js sphere, sized by mention volume. The real-time GDELT feed pulses new events live on this surface. Vector source at `assets/earth-gold-globe.svg`; raster fallback at `assets/earth-gold-globe.png`. |
 
-The full brand palette is dark (`#0a0a0a`) + gold (`#d4af37`) + alert red (`#e74c3c`) — no bright marketing colours, because the product is a data console, not a landing page.
+**Palette:** dark (`#0a0a0a`) + gold (`#d4af37`) + alert red (`#e74c3c`) — no bright marketing colours, because the product is a data console, not a landing page.
+
+**All 4 files in `assets/`** (1 brand mark + 1 globe, each as vector + raster):
+
+```
+assets/
+├── logo-nf.svg          2.8 KB   ← NF monogram (vector)
+├── logo-nf.png          102 KB   ← NF monogram (raster, 512×512)
+├── earth-gold-globe.svg  87 KB   ← globe continents (vector)
+└── earth-gold-globe.png 233 KB   ← globe continents (raster)
+```
 
 ## Running everything
 
@@ -59,6 +69,10 @@ cd noiseui && npm install
 .venv\Scripts\python backend\build_extended.py
 .venv\Scripts\python backend\build_data.py   # merge extended data into the bundle
 ```
+
+> **Note:** the Cross-Reactions and Nepal Dividend pages already work using an offline-derived
+> baseline (see `noiseui/src/data/regionalLens.js` — `source` field on each object). They populate
+> immediately on load; the optional GDELT fetch above only enriches them with live 30-day data.
 
 ### Open the NoiseUI dashboard (development mode)
 ```bash
