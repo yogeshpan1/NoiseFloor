@@ -69,128 +69,19 @@ Audit result across the repo:
 
 ```
 NoiseFloor/
-├── NoiseFloor.ipynb            # original Colab PySpark pipeline (unchanged)
-├── notebook_addendum.ipynb     # NEW: Colab cells — Nepal→India/China reverse direction,
-│                               #   neighbour×incident matrix for the heatmap
-├── data/
-│   └── event_log.csv           # NEW: manually verified causal event log (date,event,source)
-├── backend/                    # Python tooling (run inside .venv)
-│   ├── date_index.py           # NEW: DSA component — DateIndex (see below)
-│   ├── anomaly.py              # NEW: 2σ rolling-mean anomaly detection
-│   ├── build_data.py           # NEW: CSVs → data_bundle.js (asserts locked findings)
-│   ├── requirements.txt
-│   └── tests/test_date_index.py# NEW: incl. empirical before/after benchmark
-├── gdelt-dashboard/            # static frontend ("antigravity" build, Version B)
-│   ├── index.html              # existing views + NEW: Date Explorer / Trends / Live Feed
-│   ├── app.js                  # existing logic + new views' logic
-│   ├── date_index.js           # NEW: JS twin of the DSA DateIndex (load-bearing!)
-│   ├── feed.js                 # NEW: GDELT DOC API live feeds, 15-min auto-refresh
-│   ├── style.css               # feed/heatmap/print styles
-│   ├── data_bundle.js          # generated — run backend/build_data.py after any CSV change
-│   ├── globe.js                # NEW: dependency-free 3D coverage globe (Dashboard)
-│   ├── summarize.js            # NEW: headline tone lexicon + extractive 3-point briefings
-│   ├── geo_views.js            # NEW: Neighbour Watch / Cross-Reactions / Nepal Dividend views
-│   ├── insights.js             # NEW: Insight Engine — TF-IDF inverted-index Q&A over verified findings
-│   └── data/extended/          # generated cache from backend/build_extended.py
-└── *.csv                       # original pipeline exports (untouched)
+├── noiseui/                    # React 18 + Vite + Three.js frontend (NoiseUI)
+│   ├── src/                    # source code (17 pages, components, utils, data)
+│   ├── package.json            # dependencies (React, Three.js, Recharts, Framer Motion)
+│   ├── vite.config.js          # Vite build config
+│   └── tailwind.config.js      # Tailwind theme (gold/black console aesthetic)
+├── backend/                    # Python pipeline + DSA + tests
+├── data/                       # Event log + pipeline CSVs
+├── *.csv                       # Pipeline outputs (daily_sentiment, comparisons...)
+├── NoiseFloor.ipynb            # Original PySpark notebook
+├── notebook_addendum.ipynb     # Nepal->India/China reverse analysis
+├── README.md
+└── PROJECT_HANDOFF.md          # Brief for UI collaborators
 ```
-
-## 🎨 2026 redesign — Figma console UI + Regional Lens
-
-The dashboard was rebuilt around a dark intelligence-console design (near-black surfaces,
-rounded panels, mono numerals; India red `#F0544C` vs China cyan `#2CC8E8`). All previous
-views and every locked statistic are preserved.
-
-New since the original build:
-
-- **Figma-replica shell** — grouped sidebar navigation, top bar with live view title,
-  `DATASET GDELT / LAST UPDATED` sidebar footer, KPI cards with big mono values.
-- **3D Coverage Globe** (Dashboard) — hand-rolled orthographic canvas projection: one dot per
-  source country sized by Nepal-coverage volume, pulsing Nepal marker, great-circle arcs from
-  India and China. Drag to rotate, auto-spins when idle. No WebGL/library dependencies.
-- **Regional Lens views** (`backend/build_extended.py` → `geo_views.js`):
-  - *Neighbour Watch* — India vs China tone toward **every** neighbour (Pakistan, Bangladesh,
-    Sri Lanka, Bhutan, Maldives, Myanmar, Afghanistan, Nepal) with attention-share radar.
-  - *Cross-Reactions* — how Indian media frames China's activities in Nepal (and vice versa):
-    rival-mention coverage tone vs each outlet's own baseline, i.e. a threat-framing detector.
-  - *Nepal Dividend* — aid/investment attention & framing timelines plus a curated ledger of
-    documented assistance with sources.
-- **Live Feed upgrade** — every headline carries an on-device tone chip, and each stream gets a
-  3-point **AI briefing** generated locally by `summarize.js` (lexicon sentiment + term-frequency
-  extraction over the retrieved titles). No external AI service; nothing invented.
-- **Insight Engine** — ask questions in plain English; a hand-built **verified-answer search**
-  engine (inverted index → TF-IDF retrieval → cited passages) answers strictly from NoiseFloor's
-  verified event log, findings and methodology — retrieved text is shown verbatim, never generated.
-  DSA showcase #2 alongside the DateIndex.
-
-
-## 🆕 Feature map (what was added where)
-
-### Task 1 — Date-specific search
-- **UI**: sidebar → *Date Explorer* (`index.html` view `view-dateexplorer`, logic in `app.js`
-  `initDateExplorer()` / `runDateSearch()`).
-- Single-date or range mode; returns matching days, total events, avg tone, spike count,
-  India-vs-China tone chart, daily volume+tone chart, tagged events from the event log.
-- **Global filter checkbox** narrows the Gen-Z waveform and Trends charts via the same index.
-- Preset button jumps to the Sept 8–14, 2025 spike week.
-
-### Task 2 — More visuals
-Sidebar → *Trends & Anomalies* (`app.js`: `buildToneOverTime`, `buildVolumeChart`,
-`buildScatter`, `buildHeatmap`, `buildAnomalyTable`):
-
-- Tone-over-time per country, daily **or weekly** granularity toggle.
-- Article-volume-over-time (attention) on a log axis, separate from tone.
-- Volume × tone scatter with Pearson r computed client-side — shows attention ≠ sentiment.
-- Neighbour comparison table-heatmap: every publishing country, colour-coded average tone.
-
-All timeline charts carry **event-log annotations**: dashed vertical lines + tooltip "WHY" text.
-
-### Task 3 — Causal context for spikes
-- `data/event_log.csv`: small, **manually verified** event log (date, event, description, source
-  URL, confidence). Unexplained spike days (e.g. the 2024-09-01 blip in `daily_sentiment.csv`) are
-  marked `unverified` rather than given invented causes.
-- Rendered as annotations/tooltips on Trends charts and as a lookup table inside Date Explorer.
-
-### Task 4 — DSA component: custom date index ⭐
-- **Python engine**: `backend/date_index.py` — `DateIndex` class.
-- **JS twin**: `gdelt-dashboard/date_index.js` — `NFDateIndex`; this is what actually answers every
-  search in the browser.
-- Structure: a **sorted array of distinct dates** (binary-searched with hand-implemented
-  lower/upper bounds) plus an **inverted index** `Map<date, rowId[]>` built once at load time.
-- Complexity:
-
-  | | build | exact date | range query |
-  |---|---|---|---|
-  | **DateIndex** | O(n log n) once | O(1) avg | **O(log n + k)** |
-  | naive scan (before) | — | O(n) | O(n) |
-
-  `n` = rows, `k` = matches. Before, every filter re-scanned every row; now the index is paid for
-  once and each query costs two binary searches (≈ ⌈log₂97⌉ steps over distinct dates) plus only
-  the matching rows. The gap widens with dataset size since search grows as log₂(n).
-- Empirical before/after proof:
-  `.venv\Scripts\python -m pytest backend\tests -v` — see `test_benchmark_beats_linear`.
-- One deliberately load-bearing structure (no decorative heaps/trees), documented inline for the viva.
-
-### Stretch features
-- **(a) Country-comparison mode** — legend-click isolation/diffing on the tone-over-time chart.
-- **(b) Anomaly detection** — `backend/anomaly.py` flags days with |z| > 2 vs the country's own
-  7-day rolling mean; shown as red/cyan triangle markers + an anomaly log table.
-- **(c) Spike-day headlines** — "FETCH REAL HEADLINES" button in Date Explorer pulls actual article
-  titles for the selected window from the GDELT DOC API (nothing invented).
-- **(d) Exportable report** — CSV export of the filtered window + print/PDF snapshot
-  (dedicated print stylesheet).
-
-### User-requested additions
-1. **Nepal's tone toward India & China** (reverse direction): needs the Spark-scale event data, so
-   it ships as ready-to-run Colab cells in `notebook_addendum.ipynb` (Part R1) producing
-   `nepal_toward_india_china.csv`. The live "now" layer works without Colab (next items).
-2. **Live foreign-media feed on Nepal** — sidebar → *Live Feed*, section A: Indian & Chinese
-   coverage including **native-language streams** (`sourcelang:hindi`,
-   `sourcelang:simplifiedchinese`) via the GDELT DOC 2.0 API (`feed.js`).
-3. **Nepali media covering India & China** — same view, section B (`sourcecountry:np`).
-4. Both sections **auto-refresh every 15 minutes** (matching GDELT's own index lag); manual
-   REFRESH NOW button included; explicit error state if the API is unreachable.
-
 ## Running everything
 
 ```bat
@@ -208,8 +99,12 @@ python -m venv .venv
 .venv\Scripts\python backend\build_extended.py
 .venv\Scripts\python backend\build_data.py   :: merge extended data into the bundle
 
-:: open the dashboard (no server needed — pure static files)
-start gdelt-dashboard\index.html
+:: open the NoiseUI dashboard (development mode)
+cd noiseui && npm run dev
+
+:: OR serve the production build
+:: (after npm run build, serve noiseui/dist/ with any static server)
+python -m http.server 8765 --directory noiseui/dist
 ```
 
 > **GDELT quirk worth knowing (cost us a debugging session):** the DOC 2.0 API
