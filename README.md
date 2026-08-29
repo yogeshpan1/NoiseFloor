@@ -25,10 +25,15 @@ NoiseFloor/
 └── README.md
 ```
 
-## Screenshots
+## Visual identity
 
-![Gold-continent earth texture rendered in Three.js — the real-time GDELT globe shown at app load (assets/earth-gold-globe.png)](assets/earth-gold-globe.png)
+| | |
+|---|---|
+| ![Gold-continent globe — Three.js coverage visualisation shown on app load](assets/earth-gold-globe.png) | **Global coverage globe** — every article plotted as a dot on a Three.js sphere, sized by mention volume. The real-time GDELT feed pulses new events live on this surface. ([assets/earth-gold-globe.png](assets/earth-gold-globe.png)) |
+| ![Gold-on-black continent texture — same earth used as a lit sphere material](assets/earth-gold-globe.svg) | **Vector globe source** — the same continent silhouettes as an SVG, used wherever a flat representation is more appropriate than the 3D sphere. ([assets/earth-gold-globe.svg](assets/earth-gold-globe.svg)) |
+| ![Nepal outline — country of focus throughout the project](assets/nepal-outline.svg) | **Nepal country outline** — the subject of every analysis in this repository. All tone charts, event logs, and dividend ledgers hang off this single country. ([assets/nepal-outline.svg](assets/nepal-outline.svg)) |
 
+The full brand palette is dark (`#0a0a0a`) + gold (`#d4af37`) + alert red (`#e74c3c`) — no bright marketing colours, because the product is a data console, not a landing page.
 
 ## Running everything
 
@@ -83,7 +88,3 @@ git push -u origin main        :: authenticate in the browser popup if prompted
 
 Commits are split per concern (baseline -> backend/DSA -> frontend features -> docs) so each professor
 feedback item can be pointed at its own diff.
-
----
-
->>> a8bbf1907bc9c63e8fdc0a95cc0cd099232e43db
