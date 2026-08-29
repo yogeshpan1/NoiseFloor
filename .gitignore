@@ -1,67 +1,25 @@
-<<<<<<< HEAD
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# === NoiseUI (React frontend) ===
+noiseui/node_modules/
+noiseui/dist/
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-=======
-# Python
+# === Python / Venv ===
 .venv/
 venv/
+.pytest_cache/
 __pycache__/
 *.pyc
-.pytest_cache/
 
-# Scratch / temp
-_scratch_*
-*.tmp
-temp.zip
+# === Scratch / temp helpers ===
+NoiseFloor_share.zip
+Yogesh Pant.zip
+_*.py
+_*.bat
+_*.txt
+_*.log
+_*.png
+_preview.html
 
-# OS
+# === OS files ===
 Thumbs.db
 .DS_Store
-_ext.log 
-gdelt-dashboard/data/extended/_cellcache.json
-_ext_run.log 
-_commitmsg.txt 
-_count.py 
-_ps.bat 
-_kill.bat 
-_checkjs.bat 
-_run_ext.bat
-_smoketest.js 
-_css_snippet.css
-_open.bat 
-_shot.bat
-_dump.py 
-_sept.py 
-_topgap.py 
-_msg.txt
-_chk.py
-_chk2.py
-_feed_mid.txt
-_ext_build.log
-_ext_chain.bat
-_probe_out.txt
-_shot_*.png
-gdelt-dashboard/_preview.html
->>>>>>> a8bbf1907bc9c63e8fdc0a95cc0cd099232e43db
+desktop.ini
