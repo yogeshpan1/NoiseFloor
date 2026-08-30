@@ -1,7 +1,5 @@
 # NoiseFloor — Geopolitical Intelligence Dashboard
 
-![NoiseFloor — brand mark](assets/logo-nf.png)
-
 **BSc Computing final-year Big Data capstone** — Islington College / London Metropolitan University
 Big Data with PySpark elective, Summer Industry Enrichment Program.
 
@@ -30,7 +28,6 @@ NoiseFloor/
 
 | | |
 |---|---|
-| ![NF brand mark — gold on black, 512×512 vector source in assets/logo-nf.svg](assets/logo-nf.png) | **Brand mark (NF monogram)** — the gold-on-noir logo used in the README header, the React `<HeroSection>`, and anywhere the project is named. Vector source at `assets/logo-nf.svg`; 512×512 raster fallback at `assets/logo-nf.png`. |
 | ![Gold-continent globe — Three.js coverage visualisation shown on app load](assets/earth-gold-globe.png) | **Global coverage globe** — every article plotted as a dot on a Three.js sphere, sized by mention volume. The real-time GDELT feed pulses new events live on this surface. Vector source at `assets/earth-gold-globe.svg`; raster fallback at `assets/earth-gold-globe.png`. |
 
 **Palette:** dark (`#0a0a0a`) + gold (`#d4af37`) + alert red (`#e74c3c`) — no bright marketing colours, because the product is a data console, not a landing page.
