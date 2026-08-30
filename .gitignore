@@ -19,6 +19,11 @@ _*.log
 _*.png
 _preview.html
 
+# === Git credential / temp files (never commit) ===
+gc_*.txt
+.git-credentials
+_netrc
+
 # === OS files ===
 Thumbs.db
 .DS_Store
