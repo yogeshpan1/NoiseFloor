@@ -1,11 +1,55 @@
-# NoiseFloor — Geopolitical Intelligence Dashboard
+# NoiseFloor — Geopolitical Media Intelligence Dashboard
 
-**BSc Computing final-year Big Data capstone** — Islington College / London Metropolitan University
-Big Data with PySpark elective, Summer Industry Enrichment Program.
+A PySpark + GDELT data pipeline that quantifies how India's and China's media covered Nepal across
+three national crises — the **2015 earthquake**, the **2015 border blockade**, and the **2025 Gen-Z
+protests** — surfaced through a scrollytelling web dashboard and a Power BI analytics suite.
 
-A PySpark + GDELT pipeline analysing how India's and China's media covered Nepal across three
-national crises — the **2015 earthquake**, the **2015 border blockade**, and the **2025 Gen-Z
-protests** — exported to CSVs and visualised in a scrollytelling web dashboard.
+Nepal sits between two regional powers that compete for influence through soft power as much as
+policy. NoiseFloor turns that competition into data: 35.5M GDELT-tracked articles, 96 reporting
+countries, and 148,180 Nepal-filtered events are processed at scale to test — statistically, not
+anecdotally — whether coverage tone actually differs by source country, and how it has moved over
+a decade.
+
+## Key findings
+
+| Test | What it checks | Result |
+|---|---|---|
+| **HX-001** — Tone gap | Is India's average tone equal to China's? | t = −13.95, p = 0.0051 → **rejected** (the gap is real, not noise) |
+| **HX-002** — India stability | Has India's tone shifted between 2015 and 2025? | t = −0.24, p = 0.8094 → **stable** (no significant change) |
+| **HX-003** — Cross-correlation | Do India's and China's tone series move together? | ρ = −0.0235, p = 0.824 → **confirmed independent** |
+
+- India's average tone stayed consistently critical across all three crises (−2.26, −2.43, −2.30).
+- China's average tone was far more neutral but trended steadily more negative over time (−0.29 → −0.45 → −0.71).
+- Verbal cooperative-language framing of Nepal declined from 62.65% (2015) to 56.10% (2025).
+- Bhutan was the only neighboring country in the dataset with a net-positive average tone (+1.64).
+
+## Live coverage globe
+
+| | |
+|---|---|
+| ![Gold-continent globe — Three.js coverage visualisation shown on app load](assets/earth-gold-globe.png) | Every article is plotted as a dot on a Three.js sphere, sized by mention volume, with a real-time GDELT feed pulsing new events onto the surface as they're ingested. |
+
+**Visual language:** dark (`#0a0a0a`) + gold (`#d4af37`) + alert red (`#e74c3c`) — designed as a data console, not a marketing landing page.
+
+## Tech stack
+
+- **Frontend (NoiseUI):** React 18, Vite, Three.js, Recharts, Framer Motion, Tailwind CSS
+- **Pipeline:** Python, PySpark, pandas
+- **Data source:** [GDELT](https://www.gdeltproject.org/) (Global Database of Events, Language, and Tone) — DOC 2.0 API
+- **Analytics / BI:** Power BI multi-page dashboard
+- **Testing:** pytest
+
+## System architecture
+
+```
+GDELT raw stream  →  PySpark parsing & filtering  →  actor extraction  →  statistical storage  →  visualization layer
+```
+
+1. **Ingestion** — pull GDELT records filtered by date range (the three crisis windows) and by source country (India/China).
+2. **Processing (PySpark)** — clean and filter records, group by country + event, compute average tone and cooperative-language %, distributed to handle GDELT's scale.
+3. **Statistical analysis** — hypothesis testing (t-tests, correlation) to confirm patterns are statistically real rather than sampling noise.
+4. **Export** — eight CSVs generated from the processed results, one per key breakdown.
+5. **Visualization** — a Power BI dashboard for deep exploration, and a scrollytelling web frontend for a guided narrative walkthrough.
 
 ## Repository layout
 
@@ -24,15 +68,7 @@ NoiseFloor/
 └── README.md
 ```
 
-## Visual identity
-
-| | |
-|---|---|
-| ![Gold-continent globe — Three.js coverage visualisation shown on app load](assets/earth-gold-globe.png) | **Global coverage globe** — every article plotted as a dot on a Three.js sphere, sized by mention volume. The real-time GDELT feed pulses new events live on this surface. Vector source at `assets/earth-gold-globe.svg`; raster fallback at `assets/earth-gold-globe.png`. |
-
-**Palette:** dark (`#0a0a0a`) + gold (`#d4af37`) + alert red (`#e74c3c`) — no bright marketing colours, because the product is a data console, not a landing page.
-
-**Assets directory** (brand mark + globe + all 21 page screenshots):
+**Assets directory** (brand mark + globe + all page screenshots):
 
 ```
 assets/
@@ -66,7 +102,7 @@ assets/
 
 ## Screenshots walkthrough
 
-A capture of every page in the running dashboard. All shots taken in a Chromium viewport of 1440×900 (1100 for the dashboard coverage-gap crop) against the Vite dev server, with the preloader/globe intro shown first.
+All shots taken in a Chromium viewport of 1440×900 (1100 for the dashboard coverage-gap crop) against the Vite dev server, with the preloader/globe intro shown first.
 
 ### Entry experience
 
@@ -111,11 +147,11 @@ A capture of every page in the running dashboard. All shots taken in a Chromium 
 |---|---|
 | ![Live News Feed with four sections — IN, CN, NP, World — and a window selector](assets/screenshots/live-feed.png) | **Live News Feed** — four real-time GDELT DOC 2.0 streams (India→Nepal, China→Nepal, Nepal→India & China, World→Nepal) with selectable time windows and per-headline tone readings. |
 | ![Data Sources page with totals, the 4-stage pipeline architecture, and a top-source-country bar chart](assets/screenshots/data-sources.png) | **Data Sources** — the GDELT ingestion pipeline (raw stream → PySpark parsing → actor extraction → statistical storage), 35.5M raw records, 148,180 Nepal-filtered events, and a top-source-country bar chart. |
-| ![Methodology page with the 6-step pipeline, caveats panel, and reproducibility checklist](assets/screenshots/methodology.png) | **Methodology** — a beginner-friendly guide to how we collect data and calculate the results, the caveats that keep us honest, and the full reproducibility checklist. |
+| ![Methodology page with the 6-step pipeline, caveats panel, and reproducibility checklist](assets/screenshots/methodology.png) | **Methodology** — a step-by-step guide to how the data is collected and the results calculated, the caveats that keep the analysis honest, and the full reproducibility checklist. |
 
-## Running everything
+## Getting started
 
-### One-time setup (if not already done)
+### One-time setup
 ```bash
 python -m venv .venv
 .venv\Scripts\python -m pip install -r backend\requirements.txt
@@ -142,31 +178,36 @@ cd noiseui && npm install
 > baseline (see `noiseui/src/data/regionalLens.js` — `source` field on each object). They populate
 > immediately on load; the optional GDELT fetch above only enriches them with live 30-day data.
 
-### Open the NoiseUI dashboard (development mode)
+### Run NoiseUI in development mode
 ```bash
 cd noiseui && npm run dev
 ```
 
-### OR serve the production build
+### Or serve the production build
 ```bash
 # (after npm run build, serve noiseui/dist/ with any static server)
 python -m http.server 8765 --directory noiseui/dist
 ```
 
-## GDELT quirk worth knowing
-The DOC 2.0 API validates `sourcecountry:` against **FIPS 10-4 codes**, so China is `CH`, not `CN`. An invalid code returns an empty JSON object `{}`, which looks like "no coverage" and can silently poison the dataset cache with nulls for every China cell. Both `build_extended.py` and the Live Feed's CN·EN stream use `sourcecountry:CH`.
+## Implementation notes
 
-The Live Feed calls the GDELT DOC API directly from the browser. If a host ever blocks the request, an explicit error state is shown and the dashboard keeps working.
+**GDELT country codes:** the DOC 2.0 API validates `sourcecountry:` against **FIPS 10-4 codes**, so
+China is `CH`, not `CN`. An invalid code returns an empty JSON object `{}`, which looks like "no
+coverage" and can silently poison the dataset cache with nulls for every China cell. Both
+`build_extended.py` and the Live Feed's CN·EN stream use `sourcecountry:CH`.
 
-## Colab work
-Upload `notebook_addendum.ipynb` to Colab and run top-to-bottom after the main notebook has produced the `nepal_events` parquet.
+The Live Feed calls the GDELT DOC API directly from the browser. If a host ever blocks the request,
+an explicit error state is shown and the dashboard keeps working.
 
-## Git workflow
+**Notebook addendum:** `notebook_addendum.ipynb` (Nepal→India/China reverse analysis) should be run
+after the main notebook has produced the `nepal_events` parquet.
+
+## Contributing
 
 ```bat
 git remote add origin https://github.com/yogeshpan1/NoiseFloor.git
 git push -u origin main        :: authenticate in the browser popup if prompted
 ```
 
-Commits are split per concern (baseline -> backend/DSA -> frontend features -> docs) so each professor
-feedback item can be pointed at its own diff.
+Commits are split per concern (baseline → backend/DSA → frontend features → docs), so each review
+comment can be traced back to its own diff.
