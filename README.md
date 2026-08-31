@@ -1,13 +1,13 @@
 # NoiseFloor — Geopolitical Media Intelligence Dashboard
 
 A PySpark + GDELT data pipeline that quantifies how India's and China's media covered Nepal across
-three national crises — the **2015 earthquake**, the **2015 border blockade**, and the **2025 Gen-Z
-protests** — surfaced through a scrollytelling web dashboard and a Power BI analytics suite.
+three national crises the **2015 earthquake**, the **2015 border blockade**, and the **2025 Gen-Z
+protests** surfaced through a scrollytelling web dashboard and a Power BI analytics suite.
 
 Nepal sits between two regional powers that compete for influence through soft power as much as
 policy. NoiseFloor turns that competition into data: 35.5M GDELT-tracked articles, 96 reporting
-countries, and 148,180 Nepal-filtered events are processed at scale to test — statistically, not
-anecdotally — whether coverage tone actually differs by source country, and how it has moved over
+countries, and 148,180 Nepal-filtered events are processed at scale to test statistically, not
+anecdotally whether coverage tone actually differs by source country, and how it has moved over
 a decade.
 
 ## Key findings
